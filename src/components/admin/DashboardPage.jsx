@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSearch, FiPlus, FiDownload, FiEye, FiEdit, FiTrash2, FiUser, FiChevronLeft, FiChevronRight, FiCheckCircle, FiX, FiInbox } from 'react-icons/fi';
+import { FiSearch, FiPlus, FiDownload, FiEye, FiEdit, FiTrash2, FiUser, FiChevronLeft, FiChevronRight, FiInbox } from 'react-icons/fi';
 
 const initialBlogs = [
     {
@@ -82,7 +82,7 @@ const initialBlogs = [
     }
 ];
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 6;
 
 export default function DashboardPage() {
     const navigate = useNavigate();
@@ -177,20 +177,7 @@ export default function DashboardPage() {
         setIsConfirmOpen(false);
     };
 
-    const handleExportCSV = () => {
-        const headers = ['ID,Title,Category,Status,Author,Date,ReadTime\n'];
-        const rows = filteredBlogs.map(
-            (b) => `"${b.id}","${b.title}","${b.category}","${b.status}","${b.author}","${b.date}","${b.readTime}"`
-        );
-        const blob = new Blob([headers.concat(rows.join('\n')).join('')], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'blogs-export.csv';
-        a.click();
-        window.URL.revokeObjectURL(url);
-    };
-
+ 
     return (
         <div>
             {/* Title & Action Buttons Header */}
@@ -208,13 +195,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                    <button
-                        onClick={handleExportCSV}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-lg transition-all shadow-sm cursor-pointer"
-                    >
-                        <FiDownload size={14} />
-                        <span>Export CSV</span>
-                    </button>
+                  
                     <button
                         onClick={handleCreateBlog}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-sm shadow-indigo-200 cursor-pointer"
@@ -275,11 +256,11 @@ export default function DashboardPage() {
 
             {/* Grid or Empty State */}
             {paginatedBlogs.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 mb-8">
+                <div className="flex flex-wrap gap-6">
                     {paginatedBlogs.map((post) => (
                         <div
                             key={post.id}
-                            className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow group"
+                            className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col justify-between"
                         >
                             <div>
                                 <div className="relative h-40 sm:h-44 overflow-hidden bg-slate-100">
@@ -447,7 +428,7 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-          
+
 
         </div >
     );

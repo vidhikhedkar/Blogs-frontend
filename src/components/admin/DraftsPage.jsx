@@ -217,11 +217,11 @@ const DraftsPage = () => {
                 </div>
 
                 {/* Draft Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex flex-wrap gap-6">
                     {filteredDrafts.map((draft) => (
                         <div
                             key={draft.id}
-                            className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col justify-between"
+                            className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col justify-between"
                         >
                             <div className="relative h-44 w-full bg-slate-100 overflow-hidden border-b border-slate-50">
                                 {draft.image ? (
