@@ -12,10 +12,10 @@ export default function AdminLayout({ children }) {
 
     const navItems = [
         { label: 'Dashboard', path: '/dashboard', icon: FiGrid, hide: false, passState: true },
-        { label: 'Create Blog', path: '/create', icon: FiPlusCircle, hide: false, passState: true },
+        { label: 'Create Blog', path: '/create-blogs', icon: FiPlusCircle, hide: false, passState: true },
         {
             label: 'Edit Blogs',
-            path: hasEditId ? `/blogs?edit=${hasEditId}` : '/blogs',
+            path: hasEditId ? `/edit-blogs?edit=${hasEditId}` : '/edit-blogs',
             icon: FiFileText,
             hide: !hasEditId,
             badge: 'Active',
@@ -24,7 +24,7 @@ export default function AdminLayout({ children }) {
         },
         {
             label: 'Preview',
-            path: hasPreviewId ? `/preview?id=${hasPreviewId}` : '/preview',
+            path: hasPreviewId ? `/preview-blogs?id=${hasPreviewId}` : '/preview-blogs',
             icon: FiEye,
             hide: !hasPreviewId,
             badge: 'Active',
