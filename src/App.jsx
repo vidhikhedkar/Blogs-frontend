@@ -15,7 +15,7 @@ import ForgotPassword from './components/auth/ForgotPassword';
 import VerifyOtp from './components/auth/VerifyOtp';
 import ResetPassword from './components/auth/ResetPassword';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
-import BlogDetails from './components/blogs/Blogdetails';
+import BlogDetails from './components/blogs/BlogDetails';
 
 
 const AdminRouteLayout = () => {

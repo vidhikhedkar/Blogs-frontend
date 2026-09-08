@@ -22,7 +22,6 @@ export default function AdminLayout({ children }) {
         const getAdminDetails = async () => {
             try {
                 const response = await verifyAuth();
-                // console.log('Authenticated Admin:', response);
                 if (!mounted) return;
                 if (response?.isAuthenticated) {
                     setAdmin(response);
@@ -46,14 +45,11 @@ export default function AdminLayout({ children }) {
     }, []);
 
 
-    // Dynamic username
     const username =
         admin?.username ||
         'Admin';
 
 
-
-    // Logout
     const handleLogout = async () => {
         if (isLoggingOut) return;
         setIsLoggingOut(true);
@@ -74,7 +70,6 @@ export default function AdminLayout({ children }) {
             setIsLoggingOut(false);
         }
     };
-
 
 
     const handleLogoutClick = () => {
@@ -292,8 +287,6 @@ export default function AdminLayout({ children }) {
 
                 <div className="p-4 border-t border-slate-100">
                     <div ref={logoutPopupRef} className="relative">
-
-                        {/* Profile / Logout Trigger */}
                         <div
                             onClick={handleLogoutClick}
                             className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors"
