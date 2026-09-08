@@ -8,11 +8,6 @@ import { createBlogService, uploadInlineImageService, } from '../service/blog.se
 
 const CreateBlogPage = () => {
     const navigate = useNavigate();
-
-    /* ============================================================
-       BASIC BLOG DATA
-    ============================================================ */
-
     const [headline, setHeadline] = useState('');
     const [slug, setSlug] = useState('');
     const [excerpt, setExcerpt] = useState('');
@@ -21,90 +16,41 @@ const CreateBlogPage = () => {
     const [publicationDate, setPublicationDate] = useState('');
     const [metaTitle, setMetaTitle] = useState('');
     const [metaDescription, setMetaDescription] = useState('');
-    /* ============================================================
-       COVER IMAGE
-    ============================================================ */
-
     const [coverImage, setCoverImage] = useState(null);
     const [coverImageFile, setCoverImageFile] = useState(null);
-
-    /* ============================================================
-       CATEGORY
-    ============================================================ */
-
     const [category, setCategory] = useState('');
-
-    /* ============================================================
-       AUTHOR
-    ============================================================ */
-
     const [author, setAuthor] = useState({
         name: '',
         role: '',
-        // avatar: '',
     });
 
-    /* ============================================================
-       UI STATES
-    ============================================================ */
-
     const [seoOpen, setSeoOpen] = useState(true);
-
     const [notification, setNotification] = useState('');
-
     const [saving, setSaving] = useState(false);
     const [publishing, setPublishing] = useState(false);
     const [uploadingInline, setUploadingInline] = useState(false);
-
-    /* ============================================================
-       REFS
-    ============================================================ */
-
     const fileInputRef = useRef(null);
     const inlineImageInputRef = useRef(null);
     const quillRef = useRef(null);
-
-    /* ============================================================
-       ARTICLE CONTENT
-    ============================================================ */
-
     const [editorContent, setEditorContent] = useState('');
 
-    /* ============================================================
-       WORD COUNT
-    ============================================================ */
 
     const getWordCount = (text) => {
         const plainText = text
             .replace(/<[^>]*>/g, ' ')
             .trim();
-
         return plainText
             ? plainText.split(/\s+/).length
             : 0;
     };
 
-    /* ============================================================
-       HEADLINE
-       IMPORTANT:
-       Headline and slug are now completely independent.
-    ============================================================ */
-
     const handleHeadlineChange = (e) => {
         setHeadline(e.target.value);
     };
 
-    /* ============================================================
-       SLUG
-    ============================================================ */
-
     const handleSlugChange = (e) => {
         setSlug(e.target.value);
     };
-
-    /* ============================================================
-       TAGS
-    ============================================================ */
 
     const removeTag = (tagToRemove) => {
         setTags(tags.filter((tag) => tag !== tagToRemove));
@@ -116,36 +62,25 @@ const CreateBlogPage = () => {
             tagInput.trim()
         ) {
             e.preventDefault();
-
             const cleanTag = tagInput.trim();
-
             if (!tags.includes(cleanTag)) {
                 setTags([...tags, cleanTag]);
             }
-
             setTagInput('');
         }
     };
 
-    /* ============================================================
-       COPY SLUG
-    ============================================================ */
 
     const handleCopySlug = async () => {
         try {
             await navigator.clipboard.writeText(
                 `/ blog / ${slug} `
             );
-
             triggerNotification('Slug copied successfully!');
         } catch (error) {
             console.error('Copy slug failed:', error);
         }
     };
-
-    /* ============================================================
-       NOTIFICATION
-    ============================================================ */
 
     const triggerNotification = (msg) => {
         setNotification(msg);
@@ -155,36 +90,25 @@ const CreateBlogPage = () => {
         }, 3000);
     };
 
-    /* ============================================================
-       COVER IMAGE UPLOAD
-    ============================================================ */
 
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
-
         if (!file) return;
-
         if (!file.type.startsWith('image/')) {
             triggerNotification(
                 'Please select a valid image file.'
             );
-
             return;
         }
-
         if (file.size > 10 * 1024 * 1024) {
             triggerNotification(
                 'Cover image must be less than 10MB.'
             );
-
             return;
         }
-
         const sizeInMB =
             (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-
         const url = URL.createObjectURL(file);
-
         setCoverImage({
             url,
             name: file.name,
