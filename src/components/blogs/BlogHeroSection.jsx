@@ -1,5 +1,5 @@
 import React from 'react';
-import heroBg from '../assets/about-aerial.png';
+import heroBg from '../../assets/about-aerial.png';
 
 export default function BlogHeroSection() {
   return (
@@ -36,12 +36,12 @@ export default function BlogHeroSection() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="relative z-10 flex flex-col items-center justify-center space-y-2 cursor-pointer group mx-auto pb-4">
+      {/* <div className="relative z-10 flex flex-col items-center justify-center space-y-2 cursor-pointer group mx-auto pb-4">
         <div className="w-[1px] h-8 bg-gray-400/50 group-hover:bg-white transition-colors duration-300"></div>
         <span className="text-[10px] tracking-[0.3em] uppercase text-gray-400/70 group-hover:text-white transition-colors duration-300 font-light">
           SCROLL
         </span>
-      </div>
+      </div> */}
 
     </div>
   );
