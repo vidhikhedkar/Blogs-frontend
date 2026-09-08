@@ -9,13 +9,13 @@ import PreviewPage from './components/admin/PreviewPage';
 import TrashPage from './components/admin/TrashPage';
 import DraftsPage from './components/admin/DraftsPage';
 import BlogPage from './pages/BlogPage';
-import BlogDetails from './components/blogs/Blogdetails';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import ForgotPassword from './components/auth/ForgotPassword';
 import VerifyOtp from './components/auth/VerifyOtp';
 import ResetPassword from './components/auth/ResetPassword';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
+import BlogDetails from './components/blogs/Blogdetails';
 
 
 const AdminRouteLayout = () => {
