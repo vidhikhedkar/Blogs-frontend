@@ -1,16 +1,64 @@
 {
-    "rewrites": [
-        {
-            "source": "/blogs/assets/:path*",
-            "destination": "/assets/:path*"
-        },
-        {
-            "source": "/blogs",
-            "destination": "/index.html"
-        },
-        {
-            "source": "/blogs/:path*",
-            "destination": "/index.html"
-        }
-    ]
+  "rewrites": [
+    {
+      "source": "/blogs/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/blogs",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/blogs/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/verify-otp",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/edit-blogs",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/create-blogs",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/preview-blogs",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/drafts",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/trash",
+      "destination": "/index.html"
+    }
+  ]
 }
