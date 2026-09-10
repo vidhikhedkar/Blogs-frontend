@@ -83,6 +83,8 @@ export default function AdminLayout({ children }) {
         await handleLogout();
     };
 
+
+
     const cancelLogout = () => {
         setShowLogoutConfirm(false);
     };
@@ -98,11 +100,9 @@ export default function AdminLayout({ children }) {
                 setShowLogoutConfirm(false);
             }
         };
-
         if (showLogoutConfirm) {
             document.addEventListener('mousedown', handleClickOutside);
         }
-
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
@@ -215,7 +215,6 @@ export default function AdminLayout({ children }) {
                             className="p-1 text-slate-400 hover:text-slate-600 lg:hidden cursor-pointer"
                             aria-label="Close menu"
                         >
-
                             <FiX size={20} />
                         </button>
                     </div>
@@ -292,13 +291,11 @@ export default function AdminLayout({ children }) {
                             className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors"
                         >
                             <div className="flex items-center gap-3 min-w-0">
-
                                 <div className="text-left truncate">
                                     <p className="text-xs font-bold text-slate-800 leading-tight truncate">
                                         {username}
                                     </p>
                                 </div>
-
                             </div>
 
                             <button
@@ -317,11 +314,9 @@ export default function AdminLayout({ children }) {
                             </button>
                         </div>
 
-                        {/* Logout Confirmation Popup */}
                         {showLogoutConfirm && (
                             <div className="absolute bottom-full left-4 right-4 mb-2 z-50">
                                 <div className="bg-white border border-slate-200 rounded-xl shadow-xl p-4">
-
                                     <p className="text-sm font-semibold text-slate-800 mb-1">
                                         Confirm Logout
                                     </p>
@@ -331,7 +326,6 @@ export default function AdminLayout({ children }) {
                                     </p>
 
                                     <div className="flex justify-end gap-2">
-
                                         <button
                                             type="button"
                                             onClick={cancelLogout}
@@ -350,12 +344,10 @@ export default function AdminLayout({ children }) {
                                                 ? 'Logging out...'
                                                 : 'Logout'}
                                         </button>
-
                                     </div>
                                 </div>
                             </div>
                         )}
-
                     </div>
                 </div>
             </aside>

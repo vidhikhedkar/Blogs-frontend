@@ -5,6 +5,9 @@ import 'react-quill-new/dist/quill.snow.css';
 import { FiArrowLeft, FiImage, FiUploadCloud, FiTrash2, FiRefreshCw, FiX, FiCalendar, FiShare2, FiSave, FiCheckCircle, } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { createBlogService, uploadInlineImageService, } from '../service/blog.service';
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
+
 
 const CreateBlogPage = () => {
     const navigate = useNavigate();
@@ -118,11 +121,13 @@ const CreateBlogPage = () => {
         setCoverImageFile(file);
     };
 
+
     const triggerFileInput = () => {
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
     };
+
 
     const removeCoverImage = () => {
         if (coverImage?.url) {
@@ -137,10 +142,7 @@ const CreateBlogPage = () => {
         }
     };
 
-    /* ============================================================
-       INLINE IMAGE
-       POST /api/blogs/upload-inline-image
-    ============================================================ */
+
 
     const triggerInlineImageInput = () => {
         if (inlineImageInputRef.current) {
@@ -148,16 +150,14 @@ const CreateBlogPage = () => {
         }
     };
 
+
     const handleInlineImageChange = async (e) => {
         const file = e.target.files?.[0];
-
         if (!file) return;
-
         if (!file.type.startsWith('image/')) {
             triggerNotification(
                 'Please select a valid image file.'
             );
-
             e.target.value = '';
             return;
         }
@@ -173,42 +173,27 @@ const CreateBlogPage = () => {
 
         try {
             setUploadingInline(true);
-
             const formData = new FormData();
-
             formData.append('image', file);
-
-            console.log(
-                'Uploading inline image:',
-                file.name
-            );
-
+            // console.log('Uploading inline image:',file.name);
             const response =
                 await uploadInlineImageService(formData);
-
-            console.log(
-                'Inline Image API Response:',
-                response
-            );
-
+            // console.log('Inline Image API Response:',response);
             const imageUrl =
                 response?.imageUrl ||
                 response?.url ||
                 response?.data?.imageUrl ||
                 response?.data?.url ||
                 response?.data?.image?.url;
-
             if (!imageUrl) {
                 console.error(
                     'Inline image URL missing:',
                     response
                 );
-
                 throw new Error(
                     'Image uploaded but image URL was not returned by the API.'
                 );
             }
-
             const quill =
                 quillRef.current?.getEditor();
 
@@ -239,15 +224,9 @@ const CreateBlogPage = () => {
                 'user'
             );
 
-            triggerNotification(
-                'Inline image uploaded successfully!'
-            );
+            triggerNotification('Inline image uploaded successfully!');
         } catch (error) {
-            console.error(
-                'Inline image upload failed:',
-                error
-            );
-
+            console.error('Inline image upload failed:', error);
             triggerNotification(
                 error?.message ||
                 error?.error ||
@@ -255,16 +234,13 @@ const CreateBlogPage = () => {
             );
         } finally {
             setUploadingInline(false);
-
             if (inlineImageInputRef.current) {
                 inlineImageInputRef.current.value = '';
             }
         }
     };
 
-    /* ============================================================
-       QUILL MODULES
-    ============================================================ */
+    //    QUILL MODULES
 
     const modules = {
         toolbar: [
@@ -284,9 +260,6 @@ const CreateBlogPage = () => {
         ],
     };
 
-    /* ============================================================
-       AUTHOR CHANGE
-    ============================================================ */
 
     const handleAuthorChange = (field, value) => {
         setAuthor((prev) => ({
@@ -295,144 +268,49 @@ const CreateBlogPage = () => {
         }));
     };
 
-    /* ============================================================
-       CREATE BLOG PAYLOAD
-    ============================================================ */
 
     const buildBlogFormData = (status) => {
         const formData = new FormData();
-
-        /* --------------------------------------------------------
-           BASIC INFORMATION
-        -------------------------------------------------------- */
-
-        formData.append(
-            'title',
-            headline
-        );
-
-        formData.append(
-            'headline',
-            headline
-        );
-
-        formData.append(
-            'slug',
-            slug
-        );
-
-        formData.append(
-            'excerpt',
-            excerpt
-        );
-
-        /* --------------------------------------------------------
-           HTML ARTICLE CONTENT
-        -------------------------------------------------------- */
-
-        formData.append(
-            'content',
-            editorContent
-        );
-
-        /* --------------------------------------------------------
-           CATEGORY
-        -------------------------------------------------------- */
-
-        formData.append(
-            'category',
-            category
-        );
-
-        /* --------------------------------------------------------
-           TAGS
-        -------------------------------------------------------- */
-
-        formData.append(
-            'tags',
-            JSON.stringify(tags)
-        );
-
-        /* --------------------------------------------------------
-           AUTHOR
-        -------------------------------------------------------- */
-
-        formData.append(
-            'author',
+        formData.append('title', headline);
+        formData.append('headline', headline);
+        formData.append('slug', slug);
+        formData.append('excerpt', excerpt);
+        formData.append('content', editorContent);
+        formData.append('category', category);
+        formData.append('tags', JSON.stringify(tags));
+        formData.append('author',
             JSON.stringify({
                 name: author.name,
                 role: author.role,
-                // avatar: author.avatar,
             })
         );
-
-        /* --------------------------------------------------------
-           SEO
-        -------------------------------------------------------- */
-
-        formData.append(
-            'metaTitle',
-            metaTitle
-        );
-
-        formData.append(
-            'metaDescription',
-            metaDescription
-        );
-
-        /* --------------------------------------------------------
-           STATUS
-        -------------------------------------------------------- */
-
-        formData.append(
-            'status',
-            status
-        );
-
-        /* --------------------------------------------------------
-           PUBLICATION DATE
-        -------------------------------------------------------- */
-        formData.append(
-            'publicationDate',
+        formData.append('metaTitle', metaTitle);
+        formData.append('metaDescription', metaDescription);
+        formData.append('status', status);
+        formData.append('publicationDate',
             publicationDate
                 ? new Date(`${publicationDate}T00:00:00`).toISOString()
                 : new Date().toISOString()
         );
-        /* --------------------------------------------------------
-           READ TIME
-        -------------------------------------------------------- */
 
-        const wordCount =
-            getWordCount(editorContent);
 
+        const wordCount = getWordCount(editorContent);
         const readTime =
             Math.max(
                 1,
                 Math.ceil(wordCount / 200)
             );
 
-        formData.append(
-            'readTime',
-            String(readTime)
-        );
-
-        /* --------------------------------------------------------
-           COVER IMAGE
-        -------------------------------------------------------- */
-
+        formData.append('readTime', String(readTime));
         if (coverImageFile) {
             formData.append(
                 'image',
                 coverImageFile
             );
         }
-
         return formData;
     };
 
-    /* ============================================================
-       VALIDATION
-    ============================================================ */
 
     const validateBlog = () => {
         if (!headline.trim()) {
@@ -453,10 +331,6 @@ const CreateBlogPage = () => {
         return true;
     };
 
-    /* ============================================================
-       SAVE DRAFT
-       POST /api/blogs
-    ============================================================ */
 
     const handleSaveDraft = async () => {
         // Allow draft to be saved even if only one field is filled.
@@ -517,50 +391,24 @@ const CreateBlogPage = () => {
             setSaving(false);
         }
     };
-    /* ============================================================
-       PUBLISH BLOG
-       POST /api/blogs
-    ============================================================ */
+
 
     const handlePublish = async () => {
         if (!validateBlog()) {
             return;
         }
-
         try {
             setPublishing(true);
-
-            const formData =
-                buildBlogFormData('published');
-
-            console.log(
-                'Publishing blog...'
-            );
-
-            const response =
-                await createBlogService(
-                    formData
-                );
-
-            console.log(
-                'Publish Blog Response:',
-                response
-            );
-
-            triggerNotification(
-                'Blog published live!'
-            );
-
-            // Optional:
-            // setTimeout(() => {
-            //     navigate('/dashboard');
-            // }, 1500);
+            const formData = buildBlogFormData('published');
+            // console.log('Publishing blog...');
+            const response = await createBlogService(formData);
+            // console.log('Publish Blog Response:',response);
+            triggerNotification('Blog published live!');
         } catch (error) {
             console.error(
                 'Publish Blog Error:',
                 error
             );
-
             triggerNotification(
                 error?.response?.data?.message ||
                 error?.message ||
@@ -572,24 +420,15 @@ const CreateBlogPage = () => {
         }
     };
 
-    /* ============================================================
-       RENDER
-    ============================================================ */
 
     return (
         <div className="bg-[#F8F9FD] font-sans text-slate-700">
-
-            {/* ====================================================
-                NOTIFICATION
-            ==================================================== */}
-
             {notification && (
                 <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 transition-all">
                     <FiCheckCircle
                         className="text-emerald-400"
                         size={16}
                     />
-
                     <span>
                         {notification}
                     </span>
@@ -597,29 +436,12 @@ const CreateBlogPage = () => {
             )}
 
             <div className="w-full space-y-4">
-
-                {/* ====================================================
-                    TOP HEADER
-                ==================================================== */}
-
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-
                     <div>
-
                         <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-indigo-600 uppercase mb-1">
-
-                            <span>
-                                EDITORIAL ENGINE
-                            </span>
-
-                            <span>
-                                /
-                            </span>
-
-                            <span>
-                                NEW ENTRY
-                            </span>
-
+                            <span>EDITORIAL ENGINE</span>
+                            <span>/</span>
+                            <span>NEW ENTRY</span>
                         </div>
 
                         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900">
@@ -629,8 +451,8 @@ const CreateBlogPage = () => {
                         <p className="text-xs sm:text-sm text-slate-500 mt-1">
                             Draft and publish a new post to your publication.
                         </p>
-
                     </div>
+
 
                     <button
                         type="button"
@@ -640,42 +462,22 @@ const CreateBlogPage = () => {
                         className="self-start sm:self-center flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-all cursor-pointer"
                     >
                         <FiArrowLeft size={14} />
-
                         <span>
                             Back to Dashboard
                         </span>
                     </button>
-
                 </div>
 
-                {/* ====================================================
-                    MAIN GRID
-                ==================================================== */}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-                    {/* ====================================================
-                        LEFT COLUMN
-                    ==================================================== */}
-
                     <div className="lg:col-span-8 space-y-6">
-
-                        {/* ====================================================
-                            BASIC METADATA
-                        ==================================================== */}
-
                         <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 border border-slate-100 shadow-sm space-y-6">
-
                             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                                 01. BASIC METADATA
                             </p>
 
-                            {/* HEADLINE */}
-
                             <div>
-
                                 <div className="flex justify-between items-center mb-2">
-
                                     <label className="text-xs font-bold text-slate-800">
                                         Blog Headline
                                     </label>
@@ -683,7 +485,6 @@ const CreateBlogPage = () => {
                                     <span className="text-xs text-slate-400 font-medium">
                                         {headline.length} / 100
                                     </span>
-
                                 </div>
 
                                 <input
@@ -694,15 +495,11 @@ const CreateBlogPage = () => {
                                     placeholder="Enter blog headline..."
                                     className="w-full bg-[#F4F6FA] border-0 rounded-xl px-4 py-3.5 text-lg sm:text-xl font-serif font-bold text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
                                 />
-
                             </div>
 
                             {/* SLUG */}
-
                             <div>
-
                                 <div className="flex justify-between items-center mb-2">
-
                                     <label className="text-xs font-bold text-slate-800">
                                         Permanent URL Slug
                                     </label>
@@ -715,11 +512,9 @@ const CreateBlogPage = () => {
                                     >
                                         Copy
                                     </button>
-
                                 </div>
 
                                 <div className="relative flex items-center">
-
                                     <span className="absolute left-4 text-xs text-slate-400 pointer-events-none">
                                         /blog/
                                     </span>
@@ -731,21 +526,17 @@ const CreateBlogPage = () => {
                                         placeholder="enter-your-blog-slug"
                                         className="w-full bg-[#F4F6FA] border-0 rounded-xl pl-14 pr-4 py-3 text-xs font-medium text-indigo-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
                                     />
-
                                 </div>
 
                                 <p className="text-[10px] text-slate-400 mt-1.5">
                                     Enter the permanent URL slug manually.
                                 </p>
-
                             </div>
 
+
                             {/* COVER IMAGE */}
-
                             <div>
-
                                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-1">
-
                                     <label className="text-xs font-bold text-slate-800">
                                         Featured Cover Image
                                     </label>
@@ -753,7 +544,6 @@ const CreateBlogPage = () => {
                                     <span className="text-[11px] text-slate-400 font-medium">
                                         Recommended ratio 16:9 (1920×1080px)
                                     </span>
-
                                 </div>
 
                                 <input
@@ -765,7 +555,6 @@ const CreateBlogPage = () => {
                                 />
 
                                 {coverImage ? (
-
                                     <div className="relative rounded-2xl overflow-hidden border border-slate-100">
 
                                         <img
@@ -774,10 +563,9 @@ const CreateBlogPage = () => {
                                             className="w-full h-56 sm:h-80 object-cover"
                                         />
 
-                                        <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div className="absolute inset-x-0 bottom-0 p-4 bg-linear-to-t from-black/70 via-black/40 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 
                                             <div className="flex items-center gap-2 text-white/90 text-xs font-medium truncate">
-
                                                 <FiImage
                                                     size={16}
                                                     className="shrink-0"
@@ -794,7 +582,6 @@ const CreateBlogPage = () => {
                                             </div>
 
                                             <div className="flex items-center gap-2 self-end sm:self-auto">
-
                                                 <button
                                                     type="button"
                                                     onClick={triggerFileInput}
@@ -813,25 +600,19 @@ const CreateBlogPage = () => {
                                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-semibold cursor-pointer transition-all"
                                                 >
                                                     <FiTrash2 size={12} />
-
                                                     <span>
                                                         Remove
                                                     </span>
                                                 </button>
-
                                             </div>
-
                                         </div>
-
                                     </div>
-
                                 ) : (
 
                                     <div
                                         onClick={triggerFileInput}
                                         className="h-48 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-indigo-400 transition-all bg-[#F8F9FD]"
                                     >
-
                                         <FiUploadCloud
                                             size={32}
                                             className="text-slate-400 mb-2"
@@ -846,17 +627,11 @@ const CreateBlogPage = () => {
                                         </p>
 
                                     </div>
-
                                 )}
-
                             </div>
 
-                            {/* EXCERPT */}
-
                             <div>
-
                                 <div className="flex justify-between items-center mb-2">
-
                                     <label className="text-xs font-bold text-slate-800">
                                         Short Excerpt / Teaser
                                     </label>
@@ -864,7 +639,6 @@ const CreateBlogPage = () => {
                                     <span className="text-[11px] text-slate-400 font-medium">
                                         Rendered on card views & RSS
                                     </span>
-
                                 </div>
 
                                 <textarea
@@ -876,21 +650,12 @@ const CreateBlogPage = () => {
                                     placeholder="Write a brief intro..."
                                     className="w-full bg-[#F4F6FA] border-0 rounded-xl p-4 text-xs font-medium text-slate-800 leading-relaxed placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all resize-none"
                                 />
-
                             </div>
-
                         </div>
 
-                        {/* ====================================================
-                            ARTICLE BODY
-                        ==================================================== */}
-
                         <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 border border-slate-100 shadow-sm space-y-6">
-
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-
                                 <div>
-
                                     <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                         02. ARTICLE BODY
                                     </p>
@@ -898,22 +663,15 @@ const CreateBlogPage = () => {
                                     <h2 className="text-2xl font-serif font-bold text-slate-900">
                                         Manuscript Editor
                                     </h2>
-
                                 </div>
 
                                 <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
-
                                     <span className="flex items-center gap-1.5">
-
                                         <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-
                                         {getWordCount(editorContent)} words
-
                                     </span>
 
-                                    <span>
-                                        •
-                                    </span>
+                                    <span>•</span>
 
                                     <span>
                                         {Math.max(
@@ -923,25 +681,17 @@ const CreateBlogPage = () => {
                                             )
                                         )} min read
                                     </span>
-
                                 </div>
-
                             </div>
 
-                            {/* INLINE IMAGE UPLOAD */}
 
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#EEF2FF]/60 border border-indigo-100/70 rounded-xl p-3">
-
                                 <div className="flex items-center gap-2.5">
-
                                     <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-
                                         <FiImage size={16} />
-
                                     </div>
 
                                     <div>
-
                                         <p className="text-xs font-bold text-slate-700">
                                             Inline Image
                                         </p>
@@ -949,9 +699,7 @@ const CreateBlogPage = () => {
                                         <p className="text-[10px] text-slate-400">
                                             Upload an image and insert it at the cursor
                                         </p>
-
                                     </div>
-
                                 </div>
 
                                 <input
@@ -968,9 +716,7 @@ const CreateBlogPage = () => {
                                     disabled={uploadingInline}
                                     className="flex items-center justify-center gap-2 px-3.5 py-2 bg-white border border-indigo-100 hover:border-indigo-200 hover:bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-
                                     {uploadingInline ? (
-
                                         <>
                                             <FiRefreshCw
                                                 size={13}
@@ -981,7 +727,6 @@ const CreateBlogPage = () => {
                                                 Uploading...
                                             </span>
                                         </>
-
                                     ) : (
 
                                         <>
@@ -993,17 +738,11 @@ const CreateBlogPage = () => {
                                                 Upload Inline Image
                                             </span>
                                         </>
-
                                     )}
-
                                 </button>
-
                             </div>
 
-                            {/* QUILL */}
-
                             <div className="custom-quill-wrapper">
-
                                 <ReactQuill
                                     ref={quillRef}
                                     theme="snow"
@@ -1013,43 +752,26 @@ const CreateBlogPage = () => {
                                     placeholder="Click here to continue writing..."
                                     className="border-0"
                                 />
-
                             </div>
-
                         </div>
-
                     </div>
 
-                    {/* ====================================================
-                        RIGHT SIDEBAR
-                    ==================================================== */}
-
                     <div className="lg:col-span-4 space-y-6">
-
-                        {/* SETTINGS */}
-
                         <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-sm space-y-6">
-
                             <div className="flex justify-between items-center">
-
                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                                     SETTINGS & TAXONOMY
                                 </span>
 
                                 <span className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-full text-[11px] font-semibold text-slate-600">
-
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-
                                     Draft State
-
                                 </span>
-
                             </div>
 
+
                             {/* CATEGORY - MANUAL INPUT */}
-
                             <div>
-
                                 <label className="block text-xs font-bold text-slate-800 mb-2">
                                     Primary Category
                                 </label>
@@ -1063,15 +785,11 @@ const CreateBlogPage = () => {
                                     placeholder="Enter category..."
                                     className="w-full bg-[#F4F6FA] border-0 rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
                                 />
-
                             </div>
 
-                            {/* TAGS */}
 
                             <div>
-
                                 <div className="flex justify-between items-center mb-2">
-
                                     <label className="text-xs font-bold text-slate-800">
                                         Article Tags
                                     </label>
@@ -1079,22 +797,16 @@ const CreateBlogPage = () => {
                                     <span className="text-[11px] text-slate-400 font-medium">
                                         {tags.length} attached
                                     </span>
-
                                 </div>
 
                                 <div className="bg-[#F4F6FA] rounded-xl p-2.5 space-y-2">
-
                                     <div className="flex flex-wrap gap-1.5">
-
                                         {tags.map((tag) => (
-
                                             <span
                                                 key={tag}
                                                 className="inline-flex items-center gap-1 px-2.5 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 shadow-sm"
                                             >
-
                                                 {tag}
-
                                                 <button
                                                     type="button"
                                                     onClick={() =>
@@ -1104,11 +816,8 @@ const CreateBlogPage = () => {
                                                 >
                                                     <FiX size={12} />
                                                 </button>
-
                                             </span>
-
                                         ))}
-
                                     </div>
 
                                     <input
@@ -1121,19 +830,15 @@ const CreateBlogPage = () => {
                                         onKeyDown={handleTagKeyDown}
                                         className="w-full bg-transparent border-0 px-1 py-1 text-xs text-slate-700 placeholder-slate-400 focus:outline-none"
                                     />
-
                                 </div>
 
                                 <p className="text-[11px] text-slate-400 mt-1.5">
                                     Press Enter or comma to create new tag
                                 </p>
-
                             </div>
 
-                            {/* AUTHOR - MANUAL INPUT */}
 
                             <div>
-
                                 <label className="block text-xs font-bold text-slate-800 mb-2">
                                     Author Name
                                 </label>
@@ -1154,7 +859,6 @@ const CreateBlogPage = () => {
                                 <label className="block text-xs font-bold text-slate-800 mb-2 mt-4">
                                     Author Role
                                 </label>
-
                                 <input
                                     type="text"
                                     value={author.role}
@@ -1167,98 +871,48 @@ const CreateBlogPage = () => {
                                     placeholder="Enter author role..."
                                     className="w-full bg-[#F4F6FA] border-0 rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
                                 />
-
-                                {/* <label className="block text-xs font-bold text-slate-800 mb-2 mt-4">
-                                    Author Avatar URL
-                                </label> */}
-
-                                {/* <input
-                                    type="text"
-                                    value={author.avatar}
-                                    onChange={(e) =>
-                                        handleAuthorChange(
-                                            'avatar',
-                                            e.target.value
-                                        )
-                                    }
-                                    placeholder="https://example.com/avatar.jpg"
-                                    className="w-full bg-[#F4F6FA] border-0 rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
-                                />
-
-                                {author.avatar && (
-                                    <div className="mt-3 flex items-center gap-3">
-
-                                        <img
-                                            src={author.avatar}
-                                            alt={author.name || 'Author'}
-                                            className="w-10 h-10 rounded-full object-cover border border-slate-200"
-                                            onError={(e) => {
-                                                e.currentTarget.style.display =
-                                                    'none';
-                                            }}
-                                        />
-
-                                        <div>
-                                            <p className="text-xs font-bold text-slate-800">
-                                                {author.name || 'Author'}
-                                            </p>
-
-                                            <p className="text-[10px] text-slate-400">
-                                                {author.role || 'Author Role'}
-                                            </p>
-                                        </div>
-
-                                    </div>
-                                )} */}
-
                             </div>
 
-                            {/* PUBLICATION */}
+
                             <div>
                                 <label className="block text-xs font-bold text-slate-800 mb-2">
                                     Publication date
                                 </label>
 
-                                <div className="relative">
-                                    <div className="flex items-center gap-2 bg-[#F4F6FA] rounded-xl p-3">
-                                        <FiCalendar
-                                            size={14}
-                                            className="text-indigo-600 shrink-0"
-                                        />
-
-                                        <input
-                                            type="date"
-                                            value={publicationDate}
-                                            onChange={(e) => setPublicationDate(e.target.value)}
-                                            className="w-full bg-transparent border-none outline-none text-xs font-semibold text-slate-700 cursor-pointer"
-                                        />
-                                    </div>
+                                <div className="w-full">
+                                    <DatePicker
+                                        value={publicationDate ? dayjs(publicationDate) : null}
+                                        onChange={(date) => {
+                                            setPublicationDate(
+                                                date ? date.format("YYYY-MM-DD") : ""
+                                            );
+                                        }}
+                                        format="DD/MM/YYYY"
+                                        placeholder="Select publication date"
+                                        suffixIcon={
+                                            <FiCalendar className="text-indigo-600" size={16} />
+                                        }
+                                        className="w-full h-11 rounded-xl text-xs font-semibold"
+                                        popupClassName="responsive-calendar"
+                                    />
                                 </div>
                             </div>
-
                         </div>
 
-                        {/* SEO */}
 
                         <div className="bg-white rounded-2xl p-4 sm:p-6 border border-slate-100 shadow-sm space-y-5">
-
                             <div
                                 onClick={() =>
                                     setSeoOpen(!seoOpen)
                                 }
                                 className="flex items-center justify-between cursor-pointer"
                             >
-
                                 <div className="flex items-center gap-3">
-
                                     <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-
                                         <FiShare2 size={16} />
-
                                     </div>
 
                                     <div>
-
                                         <h3 className="text-xs font-bold text-slate-800">
                                             SEO Settings
                                         </h3>
@@ -1266,9 +920,7 @@ const CreateBlogPage = () => {
                                         <p className="text-[11px] text-slate-400">
                                             Social cards & crawler optimization
                                         </p>
-
                                     </div>
-
                                 </div>
 
                                 <span
@@ -1279,19 +931,12 @@ const CreateBlogPage = () => {
                                 >
                                     ▼
                                 </span>
-
                             </div>
 
                             {seoOpen && (
-
                                 <div className="space-y-4 pt-2 border-t border-slate-50">
-
-                                    {/* META TITLE */}
-
                                     <div>
-
                                         <div className="flex justify-between items-center mb-1.5">
-
                                             <label className="text-xs font-bold text-slate-800">
                                                 Meta Title
                                             </label>
@@ -1299,7 +944,6 @@ const CreateBlogPage = () => {
                                             <span className="text-[11px] font-semibold text-emerald-600">
                                                 {metaTitle.length} / 60 char
                                             </span>
-
                                         </div>
 
                                         <input
@@ -1313,15 +957,10 @@ const CreateBlogPage = () => {
                                             }
                                             className="w-full bg-[#F4F6FA] border-0 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
                                         />
-
                                     </div>
 
-                                    {/* META DESCRIPTION */}
-
                                     <div>
-
                                         <div className="flex justify-between items-center mb-1.5">
-
                                             <label className="text-xs font-bold text-slate-800">
                                                 Meta Description
                                             </label>
@@ -1329,7 +968,6 @@ const CreateBlogPage = () => {
                                             <span className="text-[11px] text-slate-400 font-medium">
                                                 {metaDescription.length} / 160 char
                                             </span>
-
                                         </div>
 
                                         <textarea
@@ -1343,35 +981,19 @@ const CreateBlogPage = () => {
                                             }
                                             className="w-full bg-[#F4F6FA] border-0 rounded-xl p-3 text-xs font-medium text-slate-700 leading-relaxed focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all resize-none"
                                         />
-
                                     </div>
-
                                 </div>
-
                             )}
-
                         </div>
-
                     </div>
-
                 </div>
 
-                {/* ====================================================
-                    ACTION FOOTER
-                ==================================================== */}
 
                 <div className="w-full bg-white rounded-2xl p-4 sm:p-5 lg:p-6 border border-slate-100 shadow-sm">
-
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
-
-                        {/* AUTOSAVE */}
-
                         <div className="flex items-start sm:items-center gap-2 text-xs font-medium text-slate-500 min-w-0 w-full lg:w-auto">
-
                             <span className="w-2 h-2 mt-1 sm:mt-0 shrink-0 rounded-full bg-emerald-500 animate-pulse" />
-
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0 leading-5">
-
                                 <span className="font-semibold text-slate-700 whitespace-nowrap">
                                     Autosave enabled
                                 </span>
@@ -1383,17 +1005,10 @@ const CreateBlogPage = () => {
                                 <span className="text-slate-500 wrap-break-word">
                                     Syncing to cloud repository
                                 </span>
-
                             </div>
-
                         </div>
 
-                        {/* BUTTONS */}
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row items-stretch gap-2.5 sm:gap-3 w-full lg:w-auto">
-
-                            {/* CANCEL */}
-
                             <button
                                 type="button"
                                 onClick={() =>
@@ -1404,8 +1019,6 @@ const CreateBlogPage = () => {
                                 Cancel
                             </button>
 
-                            {/* SAVE DRAFT */}
-
                             <button
                                 type="button"
                                 onClick={handleSaveDraft}
@@ -1415,9 +1028,7 @@ const CreateBlogPage = () => {
                                 }
                                 className="w-full lg:w-auto min-h-10.5 flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 bg-[#EEF2FF] text-indigo-900 hover:bg-indigo-100 border border-indigo-100 hover:border-indigo-200 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-
                                 {saving ? (
-
                                     <>
                                         <FiRefreshCw
                                             size={14}
@@ -1428,25 +1039,18 @@ const CreateBlogPage = () => {
                                             Saving...
                                         </span>
                                     </>
-
                                 ) : (
-
                                     <>
                                         <FiSave
                                             size={14}
                                             className="shrink-0"
                                         />
-
                                         <span>
                                             Save Draft
                                         </span>
                                     </>
-
                                 )}
-
                             </button>
-
-                            {/* PUBLISH */}
 
                             <button
                                 type="button"
@@ -1457,48 +1061,32 @@ const CreateBlogPage = () => {
                                 }
                                 className="w-full sm:col-span-2 lg:col-span-1 lg:w-auto min-h-10.5 flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-200 hover:shadow-lg transition-all duration-200 cursor-pointer whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-
                                 {publishing ? (
-
                                     <>
                                         <FiRefreshCw
                                             size={14}
                                             className="animate-spin"
                                         />
-
                                         <span>
                                             Publishing...
                                         </span>
                                     </>
-
                                 ) : (
-
                                     <>
                                         <FiCheckCircle
                                             size={14}
                                             className="shrink-0"
                                         />
-
                                         <span>
                                             Publish Blog
                                         </span>
                                     </>
-
                                 )}
-
                             </button>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
-            {/* ========================================================
-                QUILL STYLES
-            ======================================================== */}
 
             <style>{`
 
@@ -1569,8 +1157,8 @@ const CreateBlogPage = () => {
     }
 }
 
-`}</style>
-
+`}
+            </style>
         </div>
     );
 };

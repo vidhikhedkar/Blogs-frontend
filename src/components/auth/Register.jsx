@@ -1,90 +1,67 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// import logo from '../assets/logo.png';
-
-import {
-    FiUser,
-    FiMail,
-    FiLock,
-    FiEye,
-    FiEyeOff,
-} from 'react-icons/fi';
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, } from 'react-icons/fi';
 import { register } from '../service/auth.service';
+
 
 export default function Register() {
     const navigate = useNavigate();
-
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
     const [passwordError, setPasswordError] = useState('');
     const [submitError, setSubmitError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         password: '',
         confirmPassword: '',
     });
-
     const FORBIDDEN_REGEX = /[\s<>'"\\]/g;
 
-    // Username
+
     const handleUsernameChange = (e) => {
         const value = e.target.value.replace(/[^a-zA-Z0-9_]/g, '');
-
         setFormData((prev) => ({
             ...prev,
             username: value,
         }));
     };
 
-    // Email
+
     const handleEmailChange = (e) => {
         const value = e.target.value.replace(
             /[^a-zA-Z0-9@._-]/g,
             ''
         );
-
         setFormData((prev) => ({
             ...prev,
             email: value,
         }));
     };
 
-    // Password key protection
-    const handlePasswordKeyDown = (e) => {
-        const blockedKeys = [
-            ' ',
-            '<',
-            '>',
-            '"',
-            "'",
-            '\\',
-        ];
 
+    const handlePasswordKeyDown = (e) => {
+        const blockedKeys = [' ', '<', '>', '"', "'", '\\',];
         if (
             blockedKeys.includes(e.key) ||
             e.code === 'Space'
         ) {
             e.preventDefault();
-
             setPasswordError(
                 `Characters < > ' " \\ and spaces are disabled for security.`
             );
         }
     };
 
+
     // Password change
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
-
         const sanitizedValue = value.replace(
             FORBIDDEN_REGEX,
             ''
         );
-
         if (value !== sanitizedValue) {
             setPasswordError(
                 `Forbidden characters (<, >, ', ", \\, or spaces) were removed.`
@@ -92,92 +69,68 @@ export default function Register() {
         } else {
             setPasswordError('');
         }
-
         setFormData((prev) => ({
             ...prev,
             [name]: sanitizedValue,
         }));
     };
 
-    // Submit
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         const {
             username,
             email,
             password,
             confirmPassword,
         } = formData;
-
         setPasswordError('');
         setSubmitError('');
-
-        // Username validation
         if (username.length < 3) {
             setSubmitError(
                 'Username must be at least 3 characters long.'
             );
             return;
         }
-
-        // Password validation
         if (password.length < 8) {
             setPasswordError(
                 'Password must be at least 8 characters long.'
             );
             return;
         }
-
-        // Confirm password validation
         if (password !== confirmPassword) {
             setPasswordError(
                 'Passwords do not match.'
             );
             return;
         }
-
         setIsSubmitting(true);
-
         try {
-            // API payload:
-            // {
-            //     username: username,
-            //     email: email,
-            //     password: password
-            // }
-
             await register(
                 username,
                 email,
                 password
             );
-
-            // Registration successful
             navigate('/login');
-
         } catch (error) {
             console.error(
                 'Register Error:',
                 error
             );
-
             const message =
                 error.response?.data?.message ||
                 error.response?.data?.error ||
                 error.message ||
                 'Unable to create the account. Please try again.';
-
             setSubmitError(message);
-
         } finally {
             setIsSubmitting(false);
         }
     };
 
+
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafe] px-3 py-6 sm:p-4 overflow-x-hidden">
-
             <div className="bg-[linear-gradient(to_bottom,#000000_0%,#80808094_18%,#FFFFFF_100%)] p-6 sm:p-10 rounded-3xl shadow-sm w-full max-w-md box-border">
 
                 {/* Logo */}
@@ -189,20 +142,17 @@ export default function Register() {
                     />
                 </div> */}
 
-                {/* Form */}
+
                 <form
                     onSubmit={handleSubmit}
                     className="space-y-4"
                 >
-
-                    {/* Username */}
                     <div>
                         <label className="block text-xs font-bold text-slate-700 tracking-wider uppercase mb-2">
                             USERNAME
                         </label>
 
                         <div className="relative">
-
                             <FiUser
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"
                             />
@@ -216,18 +166,16 @@ export default function Register() {
                                 required
                                 className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition duration-200"
                             />
-
                         </div>
                     </div>
 
-                    {/* Email */}
+
                     <div>
                         <label className="block text-xs font-bold text-slate-700 tracking-wider uppercase mb-2">
                             EMAIL
                         </label>
 
                         <div className="relative">
-
                             <FiMail
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"
                             />
@@ -245,18 +193,15 @@ export default function Register() {
                                 required
                                 className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition duration-200"
                             />
-
                         </div>
                     </div>
 
-                    {/* Password */}
                     <div>
                         <label className="block text-xs font-bold text-slate-700 tracking-wider uppercase mb-2">
                             PASSWORD
                         </label>
 
                         <div className="relative">
-
                             <FiLock
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"
                             />
@@ -297,18 +242,15 @@ export default function Register() {
                                     <FiEye className="w-5 h-5" />
                                 )}
                             </button>
-
                         </div>
                     </div>
 
-                    {/* Confirm Password */}
                     <div>
                         <label className="block text-xs font-bold text-slate-700 tracking-wider uppercase mb-2">
                             CONFIRM PASSWORD
                         </label>
 
                         <div className="relative">
-
                             <FiLock
                                 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"
                             />
@@ -355,25 +297,21 @@ export default function Register() {
                                     <FiEye className="w-5 h-5" />
                                 )}
                             </button>
-
                         </div>
                     </div>
 
-                    {/* Password Error */}
                     {passwordError && (
                         <p className="text-xs text-red-600 font-medium mt-1">
                             {passwordError}
                         </p>
                     )}
 
-                    {/* Submit Error */}
                     {submitError && (
                         <p className="text-xs text-red-600 font-medium mt-1">
                             {submitError}
                         </p>
                     )}
 
-                    {/* Create Account */}
                     <button
                         type="submit"
                         disabled={isSubmitting}
@@ -384,10 +322,8 @@ export default function Register() {
                             ? 'Creating Account...'
                             : 'Create Account'}
                     </button>
-
                 </form>
 
-                {/* Sign In */}
                 <p className="mt-6 text-center text-sm text-slate-500">
                     Already have an account?{' '}
 
@@ -398,7 +334,6 @@ export default function Register() {
                         Sign In
                     </Link>
                 </p>
-
             </div>
         </div>
     );

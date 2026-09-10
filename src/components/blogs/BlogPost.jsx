@@ -80,14 +80,11 @@ export default function BlogPost() {
         );
     }
 
-    // ---------------------------------------------------------
-    // Error
-    // ---------------------------------------------------------
+
     if (error) {
         return (
             <section className="bg-[#FAF9F6] py-12 px-4 sm:px-6 lg:px-8 font-sans text-stone-900">
                 <div className="mx-auto">
-
                     <div className="text-center mb-10 sm:mb-14">
                         <p className="text-xs font-semibold tracking-widest text-stone-500 uppercase mb-3">
                             Our Publications
@@ -106,20 +103,16 @@ export default function BlogPost() {
                             {error}
                         </p>
                     </div>
-
                 </div>
             </section>
         );
     }
 
-    // ---------------------------------------------------------
-    // No blogs
-    // ---------------------------------------------------------
+
     if (blogs.length === 0) {
         return (
             <section className="bg-[#FAF9F6] py-12 px-4 sm:px-6 lg:px-8 font-sans text-stone-900">
                 <div className="mx-auto">
-
                     <div className="text-center mb-10 sm:mb-14">
                         <p className="text-xs font-semibold tracking-widest text-stone-500 uppercase mb-3">
                             Our Publications
@@ -143,7 +136,6 @@ export default function BlogPost() {
                             No blog posts available.
                         </p>
                     </div>
-
                 </div>
             </section>
         );
@@ -152,10 +144,7 @@ export default function BlogPost() {
     return (
         <section className="bg-[#FAF9F6] py-12 px-4 sm:px-6 lg:px-8 font-sans text-stone-900">
             <div className="mx-auto">
-
-                {/* Header Section */}
                 <div className="text-center mb-10 sm:mb-14">
-
                     <p className="text-xs font-semibold tracking-widest text-stone-500 uppercase mb-3">
                         Our Publications
                     </p>
@@ -171,48 +160,29 @@ export default function BlogPost() {
                         Explore educational resources written by our leading
                         geophysicists, engineers, and solar installation experts.
                     </p>
-
                 </div>
 
-                {/* Blog Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 container">
                     {blogs.map((post) => {
-
-                        // Blog details URL
                         const blogUrl = `/blogs/${post._id || post.id}`;
-
-                        // Handle different possible image field names
                         const image =
                             post.imageUrl ||
                             post.image ||
                             post.featuredImage ||
                             post.thumbnail ||
                             '';
-
                         return (
-
-                            /*
-                             * ENTIRE CARD IS NOW CLICKABLE
-                             * Clicking anywhere on the card opens:
-                             * /blogs/:id
-                             */
-
                             <Link
                                 key={post._id || post.id}
                                 to={blogUrl}
                                 className="block h-full"
                             >
-
                                 <article
                                     className="bg-white rounded-2xl overflow-hidden border border-stone-200/60 shadow-xs hover:shadow-md transition-shadow duration-300 flex flex-col justify-between h-full cursor-pointer"
                                 >
-
-                                    {/* Card Image */}
                                     <div
                                         className="relative h-52 sm:h-56 w-full bg-stone-100 overflow-hidden block"
                                     >
-
                                         {image ? (
                                             <img
                                                 src={image}
@@ -229,15 +199,11 @@ export default function BlogPost() {
                                                 </span>
                                             </div>
                                         )}
-
                                     </div>
 
-                                    {/* Card Content */}
+
                                     <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between">
-
                                         <div>
-
-                                            {/* Category + Date */}
                                             <div className="flex items-center space-x-2 text-[11px] font-bold tracking-wider uppercase mb-3">
 
                                                 <span className="text-emerald-700">
@@ -253,32 +219,23 @@ export default function BlogPost() {
                                                         post.createdAt ||
                                                         ''}
                                                 </span>
-
                                             </div>
 
-                                            {/* Title */}
                                             <h3 className="text-xl font-serif font-bold text-stone-900 leading-snug mb-3 transition-colors">
-
                                                 {post.title}
-
                                             </h3>
 
-                                            {/* Description */}
                                             <p className="text-stone-600 text-xs sm:text-sm leading-relaxed mb-6 line-clamp-2">
                                                 {post.description ||
                                                     post.excerpt ||
                                                     ''}
                                             </p>
-
                                         </div>
 
-                                        {/* Read Article */}
                                         <div
                                             className="inline-flex items-center text-xs sm:text-sm font-bold text-stone-900 hover:text-emerald-700 transition-colors group self-start"
                                         >
-
                                             Read Article
-
                                             <svg
                                                 className="ml-1.5 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200"
                                                 fill="none"
@@ -286,27 +243,19 @@ export default function BlogPost() {
                                                 strokeWidth="2"
                                                 viewBox="0 0 24 24"
                                             >
-
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
                                                     d="M14 5l7 7m0 0l-7 7m7-7H3"
                                                 />
-
                                             </svg>
-
                                         </div>
-
                                     </div>
-
                                 </article>
-
                             </Link>
                         );
                     })}
-
                 </div>
-
             </div>
         </section>
     );

@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    FiSearch,
-    FiSliders,
-    FiEdit3,
-    FiEye,
-    FiTrash2,
-    FiClock,
-    FiChevronDown,
-    FiCheckCircle,
-    FiX
-} from 'react-icons/fi';
+import { FiSearch, FiEdit3, FiEye, FiTrash2, FiClock, FiChevronDown, FiCheckCircle, FiX } from 'react-icons/fi';
 import { deleteBlogService, getAllBlogsService } from '../service/blog.service';
 
 
-
-// Render function for dynamic graphics
-// Kept for UI compatibility if an API blog has graphicType
 const renderCustomGraphic = (type) => {
     if (type === 'motion') {
         return (
@@ -66,30 +53,22 @@ const renderCustomGraphic = (type) => {
             </div>
         );
     }
-
     return null;
 };
 
+
 const DraftsPage = () => {
     const navigate = useNavigate();
-
     const [drafts, setDrafts] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('Last Modified');
-
     const [selectedDraftId, setSelectedDraftId] = useState(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
-
     const [deleting, setDeleting] = useState(false);
 
-    // ============================================================
-    // TOAST AUTO HIDE
-    // ============================================================
 
     useEffect(() => {
         if (showToast) {
@@ -101,22 +80,13 @@ const DraftsPage = () => {
         }
     }, [showToast]);
 
-    // ============================================================
-    // GET ALL BLOGS
-    // FETCH ONLY DRAFT BLOGS
-    // ============================================================
 
     const fetchDrafts = async () => {
         try {
             setLoading(true);
-
             const response = await getAllBlogsService();
-
-            console.log('All Blogs API Response:', response);
-
-            // Handle different possible API response structures
+            // console.log('All Blogs API Response:', response);
             let blogs = [];
-
             if (Array.isArray(response)) {
                 blogs = response;
             } else if (Array.isArray(response?.data)) {
@@ -131,9 +101,7 @@ const DraftsPage = () => {
                 blogs = response.data.data;
             }
 
-            console.log('Blogs extracted:', blogs);
-
-            // Only show non-deleted draft blogs
+            // console.log('Blogs extracted:', blogs);
             const draftBlogs = blogs.filter((blog) => {
                 const blogStatus = String(
                     blog?.status ??
@@ -143,48 +111,36 @@ const DraftsPage = () => {
                 )
                     .trim()
                     .toLowerCase();
-
                 const isDeleted =
                     blog?.isDeleted === true ||
                     blog?.deleted === true ||
                     blog?.deletedAt;
-
                 return (
                     blogStatus === 'draft' &&
                     !isDeleted
                 );
             });
-
-            console.log('Draft Blogs:', draftBlogs);
-
+            // console.log('Draft Blogs:', draftBlogs);
             setDrafts(draftBlogs);
         } catch (error) {
-            console.error(
-                'Fetch Draft Blogs Error:',
-                error
-            );
-
+            console.error('Fetch Draft Blogs Error:', error);
             setDrafts([]);
-
             setToastMessage(
                 error?.response?.data?.message ||
                 error?.message ||
                 'Failed to load drafts'
             );
-
             setShowToast(true);
         } finally {
             setLoading(false);
         }
     };
 
+
     useEffect(() => {
         fetchDrafts();
     }, []);
 
-    // ============================================================
-    // HELPERS
-    // ============================================================
 
     const getBlogId = (blog) => {
         return blog?.id ?? blog?._id;
@@ -209,8 +165,6 @@ const DraftsPage = () => {
 
     const getBlogTags = (blog) => {
         const rawTags = blog?.tags;
-
-        // No tags
         if (
             rawTags === null ||
             rawTags === undefined ||
@@ -242,23 +196,12 @@ const DraftsPage = () => {
         };
 
         let tags = rawTags;
-
-        // ---------------------------------------------------------
-        // ARRAY
-        // Example:
-        // ["mongodb", "mongoose", "backend", "express"]
-        // ---------------------------------------------------------
         if (Array.isArray(tags)) {
             tags = tags.flat(Infinity);
         }
 
-        // ---------------------------------------------------------
-        // STRING
-        // ---------------------------------------------------------
         else if (typeof tags === 'string') {
             let value = tags.trim();
-
-            // Empty / [] values
             if (
                 !value ||
                 value === '[]' ||
@@ -268,32 +211,17 @@ const DraftsPage = () => {
             ) {
                 return [];
             }
-
-            // Try JSON parsing
             try {
                 const parsed = JSON.parse(value);
-
                 if (Array.isArray(parsed)) {
                     tags = parsed.flat(Infinity);
                 } else {
                     tags = [parsed];
                 }
             } catch (error) {
-                // -------------------------------------------------
-                // Handle malformed values such as:
-                // ["a""d"]
-                // ["mongodb""mongoose""backend""express"]
-                // -------------------------------------------------
-
-                // Remove square brackets
                 value = value
                     .replace(/^\s*\[\s*/, '')
                     .replace(/\s*\]\s*$/, '');
-
-                // Split on:
-                // comma
-                // quotes
-                // adjacent quoted values
                 tags = value
                     .split(/"\s*,?\s*"|'\s*,?\s*'|,\s*/)
                     .map((tag) => normalizeTag(tag))
@@ -301,9 +229,6 @@ const DraftsPage = () => {
             }
         }
 
-        // ---------------------------------------------------------
-        // FINAL NORMALIZATION
-        // ---------------------------------------------------------
         if (!Array.isArray(tags)) {
             tags = [tags];
         }
@@ -319,12 +244,12 @@ const DraftsPage = () => {
                     tag.toLowerCase() !== 'null' &&
                     tag.toLowerCase() !== 'undefined'
             )
-            // Remove duplicates
             .filter(
                 (tag, index, array) =>
                     array.indexOf(tag) === index
             );
     };
+
 
     const getBlogImage = (blog) => {
         return (
@@ -341,11 +266,11 @@ const DraftsPage = () => {
         );
     };
 
+
     const getAuthorName = (blog) => {
         if (!blog?.author) {
             return '';
         }
-
         if (typeof blog.author === 'object') {
             return (
                 blog.author?.name ??
@@ -354,9 +279,9 @@ const DraftsPage = () => {
                 ''
             );
         }
-
         return String(blog.author);
     };
+
 
     const getUpdatedAt = (blog) => {
         const dateValue =
@@ -365,52 +290,40 @@ const DraftsPage = () => {
             blog?.createdAt ??
             blog?.publicationDate ??
             blog?.publishDate;
-
         if (!dateValue) {
             return 'Recently updated';
         }
-
         try {
             const date = new Date(dateValue);
-
             if (Number.isNaN(date.getTime())) {
                 return String(dateValue);
             }
-
             const now = new Date();
-
             const diffMs = now.getTime() - date.getTime();
             const diffMinutes = Math.floor(
                 diffMs / (1000 * 60)
             );
-
             if (diffMinutes < 1) {
                 return 'Updated just now';
             }
-
             if (diffMinutes < 60) {
                 return `Updated ${diffMinutes} minute${diffMinutes === 1 ? '' : 's'
                     } ago`;
             }
-
             const diffHours = Math.floor(
                 diffMinutes / 60
             );
-
             if (diffHours < 24) {
                 return `Updated ${diffHours} hour${diffHours === 1 ? '' : 's'
                     } ago`;
             }
-
             const diffDays = Math.floor(
                 diffHours / 24
             );
-
             if (diffDays < 7) {
                 return `Updated ${diffDays} day${diffDays === 1 ? '' : 's'
                     } ago`;
             }
-
             return `Updated ${date.toLocaleDateString(
                 'en-US',
                 {
@@ -424,28 +337,20 @@ const DraftsPage = () => {
         }
     };
 
-    // ============================================================
-    // SEARCH + SORT
-    // ============================================================
 
     const filteredDrafts = drafts
         .filter((draft) => {
             const query =
                 searchQuery.toLowerCase().trim();
-
             if (!query) {
                 return true;
             }
-
             const title = getBlogTitle(draft)
                 .toLowerCase();
-
             const description =
                 getBlogDescription(draft)
                     .toLowerCase();
-
             const tags = getBlogTags(draft);
-
             return (
                 title.includes(query) ||
                 description.includes(query) ||
@@ -475,17 +380,13 @@ const DraftsPage = () => {
                     b?.createdAt ??
                     0
                 ).getTime();
-
                 return dateA - dateB;
             }
-
-            // Last Modified
             const dateA = new Date(
                 a?.updatedAt ??
                 a?.createdAt ??
                 0
             ).getTime();
-
             const dateB = new Date(
                 b?.updatedAt ??
                 b?.createdAt ??
@@ -495,44 +396,24 @@ const DraftsPage = () => {
             return dateB - dateA;
         });
 
-    // ============================================================
-    // DELETE CONFIRMATION
-    // ============================================================
 
     const promptDelete = (id) => {
         setSelectedDraftId(id);
         setIsConfirmOpen(true);
     };
 
-    // ============================================================
-    // SOFT DELETE BLOG
-    // DELETE /api/blogs/:id
-    // ============================================================
-
     const handleConfirmDelete = async () => {
         if (!selectedDraftId || deleting) {
             return;
         }
-
         try {
             setDeleting(true);
-
-            console.log(
-                'Soft deleting draft:',
-                selectedDraftId
-            );
-
+            // console.log('Soft deleting draft:',selectedDraftId);
             const response =
                 await deleteBlogService(
                     selectedDraftId
                 );
-
-            console.log(
-                'Soft Delete Response:',
-                response
-            );
-
-            // Remove from current UI immediately
+            // console.log('Soft Delete Response:',response);
             setDrafts((prevDrafts) =>
                 prevDrafts.filter(
                     (draft) =>
@@ -540,40 +421,26 @@ const DraftsPage = () => {
                         selectedDraftId
                 )
             );
-
-            setToastMessage(
-                'Draft deleted successfully'
-            );
-
+            setToastMessage('Draft deleted successfully');
             setShowToast(true);
-
             setIsConfirmOpen(false);
             setSelectedDraftId(null);
         } catch (error) {
-            console.error(
-                'Soft Delete Draft Error:',
-                error
-            );
-
+            console.error('Soft Delete Draft Error:', error);
             setToastMessage(
                 error?.response?.data?.message ||
                 error?.message ||
                 'Failed to delete draft'
             );
-
             setShowToast(true);
         } finally {
             setDeleting(false);
         }
     };
 
-    // ============================================================
-    // PREVIEW
-    // ============================================================
 
     const handlePreview = (draft) => {
         const draftId = getBlogId(draft);
-
         navigate(`/preview-blogs?id=${draftId}`, {
             state: {
                 articleData: draft,
@@ -583,25 +450,17 @@ const DraftsPage = () => {
         });
     };
 
-    // ============================================================
-    // CONTINUE EDITING
-    // ============================================================
 
     const handleContinueEditing = (draft) => {
         const draftId = getBlogId(draft);
-
         navigate(`/edit-blogs?edit=${draftId}`);
     };
 
-    // ============================================================
-    // LOADING
-    // ============================================================
 
     if (loading) {
         return (
             <div className="bg-[#F8F9FD] text-slate-700 font-sans">
                 <div className="w-full space-y-6">
-
                     <div>
                         <div className="flex items-center gap-3">
                             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900">
@@ -621,7 +480,6 @@ const DraftsPage = () => {
 
                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm py-20 flex flex-col items-center justify-center">
                         <div className="w-8 h-8 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4" />
-
                         <p className="text-sm font-semibold text-slate-700">
                             Loading drafts...
                         </p>
@@ -638,8 +496,6 @@ const DraftsPage = () => {
     return (
         <div className="bg-[#F8F9FD] text-slate-700 font-sans">
             <div className="w-full space-y-6">
-
-                {/* Header Section */}
                 <div>
                     <div className="flex items-center gap-3">
                         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900">
@@ -657,9 +513,7 @@ const DraftsPage = () => {
                     </p>
                 </div>
 
-                {/* Search & Sort Controls Bar */}
                 <div className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-
                     <div className="relative w-full sm:w-80">
                         <FiSearch
                             size={16}
@@ -680,7 +534,6 @@ const DraftsPage = () => {
                     </div>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-
                         <div className="flex items-center gap-2">
                             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                                 SORT:
@@ -700,27 +553,20 @@ const DraftsPage = () => {
                                         Last Modified
                                     </option>
 
-                                    
-
                                     <option value="Oldest">
                                         Oldest
                                     </option>
                                 </select>
-
                                 <FiChevronDown
                                     size={14}
                                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                                 />
                             </div>
                         </div>
-
-                       
                     </div>
                 </div>
 
-                {/* Draft Cards Grid */}
                 <div className="flex flex-wrap gap-6">
-
                     {filteredDrafts.map((draft) => {
                         const draftId =
                             getBlogId(draft);
@@ -748,10 +594,7 @@ const DraftsPage = () => {
                                 key={draftId}
                                 className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col justify-between"
                             >
-
-                                {/* Image */}
                                 <div className="relative h-44 w-full bg-slate-100 overflow-hidden border-b border-slate-50">
-
                                     {image ? (
                                         <img
                                             src={image}
@@ -780,12 +623,8 @@ const DraftsPage = () => {
                                     </span>
                                 </div>
 
-                                {/* Card Content */}
                                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-
                                     <div className="space-y-3">
-
-                                        {/* Tags */}
                                         {tags.length > 0 && (
                                             <div className="flex flex-wrap gap-1.5">
                                                 {tags.map((tag, index) => (
@@ -799,7 +638,6 @@ const DraftsPage = () => {
                                             </div>
                                         )}
 
-                                        {/* Title */}
                                         <h2
                                             onClick={() =>
                                                 handleContinueEditing(
@@ -811,14 +649,12 @@ const DraftsPage = () => {
                                             {title}
                                         </h2>
 
-                                        {/* Description */}
                                         <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
                                             {description ||
                                                 'No excerpt available for this draft.'}
                                         </p>
                                     </div>
 
-                                    {/* Updated Info */}
                                     <div className="pt-2 text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
                                         <FiClock
                                             size={12}
@@ -827,16 +663,11 @@ const DraftsPage = () => {
 
                                         <span>
                                             {updatedAt}
-
-                                          
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* Card Action Buttons */}
                                 <div className="p-4 pt-0 flex items-center gap-2">
-
-                                    {/* Continue Editing */}
                                     <button
                                         type="button"
                                         onClick={() =>
@@ -847,13 +678,11 @@ const DraftsPage = () => {
                                         className="flex-1 flex items-center justify-center gap-2 bg-[#5B50EA] hover:bg-[#4C41DF] text-white py-2 px-3 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                                     >
                                         <FiEdit3 size={14} />
-
                                         <span>
                                             Continue Editing
                                         </span>
                                     </button>
 
-                                    {/* Preview */}
                                     <button
                                         type="button"
                                         onClick={() =>
@@ -867,7 +696,6 @@ const DraftsPage = () => {
                                         <FiEye size={15} />
                                     </button>
 
-                                    {/* Soft Delete */}
                                     <button
                                         type="button"
                                         onClick={() =>
@@ -886,10 +714,8 @@ const DraftsPage = () => {
                     })}
                 </div>
 
-                {/* Empty State */}
                 {filteredDrafts.length === 0 && (
                     <div className="text-center py-16 bg-white rounded-2xl border border-slate-100">
-
                         <p className="text-sm font-semibold text-slate-700">
                             {searchQuery
                                 ? `No drafts found matching "${searchQuery}"`
@@ -905,12 +731,9 @@ const DraftsPage = () => {
                 )}
             </div>
 
-            {/* Confirmation Modal */}
             {isConfirmOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-xs p-4">
-
                     <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border border-slate-100 space-y-4">
-
                         <div className="space-y-1">
                             <h3 className="text-base font-bold text-slate-900">
                                 Delete Draft?
@@ -922,7 +745,6 @@ const DraftsPage = () => {
                         </div>
 
                         <div className="flex items-center justify-end gap-2 pt-2">
-
                             <button
                                 type="button"
                                 disabled={deleting}
@@ -951,10 +773,8 @@ const DraftsPage = () => {
                 </div>
             )}
 
-            {/* Toast Notification */}
             {showToast && (
                 <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-6 sm:right-6 bg-white border border-slate-200 rounded-xl p-3 shadow-xl flex items-center justify-between gap-3 z-50">
-
                     <div className="flex items-center gap-2.5">
                         <FiCheckCircle
                             size={18}

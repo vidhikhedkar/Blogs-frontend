@@ -1,238 +1,107 @@
 
-import React, {
-    useState,
-} from 'react';
-
-import {
-    useLocation,
-    useNavigate,
-} from 'react-router-dom';
-
-import {
-    FiLock,
-    FiEye,
-    FiEyeOff,
-    FiArrowLeft,
-} from 'react-icons/fi';
+import React, { useState, } from 'react';
+import { useLocation, useNavigate, } from 'react-router-dom';
+import { FiLock, FiEye, FiEyeOff, FiArrowLeft, } from 'react-icons/fi';
 import { resetPassword } from '../service/auth.service';
 
 
-
 export default function ResetPassword() {
-
     const navigate = useNavigate();
     const location = useLocation();
+    const email =location.state?.email || '';
+    const resetSessionToken =location.state?.resetSessionToken || '';
+    const [password, setPassword] =useState('');
+    const [confirmPassword, setConfirmPassword] =useState('');
+    const [showPassword, setShowPassword] =useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] =useState(false);
+    const [submitError, setSubmitError] =useState('');
+    const [successMessage, setSuccessMessage] =useState('');
+    const [isSubmitting, setIsSubmitting] =useState(false);
 
-
-    const email =
-        location.state?.email || '';
-
-    const resetSessionToken =
-        location.state?.resetSessionToken || '';
-
-
-    const [password, setPassword] =
-        useState('');
-
-    const [confirmPassword, setConfirmPassword] =
-        useState('');
-
-
-    const [showPassword, setShowPassword] =
-        useState(false);
-
-    const [showConfirmPassword, setShowConfirmPassword] =
-        useState(false);
-
-
-    const [submitError, setSubmitError] =
-        useState('');
-
-    const [successMessage, setSuccessMessage] =
-        useState('');
-
-    const [isSubmitting, setIsSubmitting] =
-        useState(false);
-
-
-    // ==========================================
-    // SUBMIT
-    // ==========================================
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
-
         setSubmitError('');
         setSuccessMessage('');
-
-
-        // --------------------------------------
-        // Check reset session
-        // --------------------------------------
-
         if (!resetSessionToken) {
-
             setSubmitError(
                 'Your password reset session is missing or expired. Please request a new OTP.'
             );
-
             return;
         }
-
-
-        // --------------------------------------
-        // Validate password
-        // --------------------------------------
-
         if (!password) {
-
-            setSubmitError(
-                'Please enter a new password.'
-            );
-
+            setSubmitError('Please enter a new password.');
             return;
         }
-
-
         if (password.length < 6) {
-
             setSubmitError(
                 'Password must be at least 6 characters long.'
             );
-
             return;
         }
-
-
-        // --------------------------------------
-        // Confirm password
-        // --------------------------------------
-
         if (!confirmPassword) {
-
             setSubmitError(
                 'Please confirm your new password.'
             );
-
             return;
         }
-
-
         if (password !== confirmPassword) {
-
             setSubmitError(
                 'Passwords do not match.'
             );
-
             return;
         }
-
-
         setIsSubmitting(true);
-
-
         try {
-
             const response =
                 await resetPassword(
                     resetSessionToken,
                     password
                 );
-
-
-            console.log(
-                'Reset Password Response:',
-                response
-            );
-
-
-            setSuccessMessage(
-                'Password reset successfully. Redirecting to login...'
-            );
-
-
-            /*
-             * Do not keep reset token around.
-             */
-
+            // console.log('Reset Password Response:',response);
+            setSuccessMessage('Password reset successfully. Redirecting to login...');
             setTimeout(() => {
-
                 navigate('/login', {
                     replace: true,
-                });
-
+               });
             }, 1500);
-
-
         } catch (error) {
-
-            console.error(
-                'Reset Password Error:',
-                error
-            );
-
-
+            console.error('Reset Password Error:',error);
             setSubmitError(
                 error.response?.data?.message ||
                 error.response?.data?.error ||
                 'Unable to reset password. Please try again.'
             );
-
         } finally {
-
             setIsSubmitting(false);
-
         }
     };
 
 
     return (
-
         <div className="min-h-screen w-full flex items-center justify-center bg-[#f8fafe] px-3 py-6 sm:p-4 overflow-x-hidden">
-
-            <div className="bg-[linear-gradient(to_bottom,#000000_0%,#80808094_18%,#FFFFFF_100%)] p-6 sm:p-10 rounded-3xl shadow-sm w-full max-w-md box-border">
-
-
-                {/* Lock Icon */}
-
+        <div className="bg-[linear-gradient(to_bottom,#000000_0%,#80808094_18%,#FFFFFF_100%)] p-6 sm:p-10 rounded-3xl shadow-sm w-full max-w-md box-border">
                 <div className="flex justify-start sm:justify-center mb-6">
-
                     <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-
                         <FiLock className="w-6 h-6" />
-
                     </div>
-
                 </div>
 
 
-                {/* Heading */}
-
                 <div className="text-left sm:text-center mb-8">
-
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-
                         Reset Password
-
                     </h2>
 
-
                     <p className="text-slate-600 text-sm sm:text-base mt-3 leading-relaxed">
-
                         Create a new password for your account.
-
                     </p>
 
 
                     {email && (
-
                         <p className="text-xs text-slate-400 mt-2">
-
                             {email}
-
                         </p>
-
                     )}
 
                 </div>

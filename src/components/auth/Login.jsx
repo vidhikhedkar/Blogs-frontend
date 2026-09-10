@@ -1,75 +1,51 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../service/auth.service';
-// import logo from '../assets/logo.png';
+
 
 export default function Login() {
     const navigate = useNavigate();
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
     const [showPassword, setShowPassword] = useState(false);
-
     const [passwordError, setPasswordError] = useState('');
     const [submitError, setSubmitError] = useState('');
-
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Forbidden password characters
     const FORBIDDEN_REGEX = /[\s<>'"\\]/g;
+
 
     // Email handler
     const handleEmailChange = (e) => {
         const value = e.target.value;
-
         const sanitizedValue = value.replace(
             /[^a-zA-Z0-9@._-]/g,
             ''
         );
-
         setEmail(sanitizedValue);
-
-        // Clear API error when user starts typing
         if (submitError) {
             setSubmitError('');
         }
     };
 
-    // Password key protection
     const handlePasswordKeyDown = (e) => {
-        const blockedKeys = [
-            ' ',
-            '<',
-            '>',
-            '"',
-            "'",
-            '\\',
-        ];
-
+        const blockedKeys = [' ', '<', '>', '"', "'", '\\',];
         if (
             blockedKeys.includes(e.key) ||
             e.code === 'Space'
         ) {
             e.preventDefault();
-
             setPasswordError(
                 `Characters < > ' " \\ and spaces are disabled.`
             );
         }
     };
 
-    // Password change
+
     const handlePasswordChange = (e) => {
         const rawValue = e.target.value;
-
         const sanitizedValue = rawValue.replace(
-            FORBIDDEN_REGEX,
-            ''
-        );
-
+            FORBIDDEN_REGEX, '');
         setPassword(sanitizedValue);
-
         if (rawValue !== sanitizedValue) {
             setPasswordError(
                 `Forbidden characters (<, >, ', ", \\, or spaces) were removed.`
@@ -84,96 +60,56 @@ export default function Login() {
         } else {
             setPasswordError('');
         }
-
-        // Clear API error when user changes password
         if (submitError) {
             setSubmitError('');
         }
     };
 
-    // Toggle password
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
     };
 
-    // Submit login
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         setSubmitError('');
-
-        // Password validation
         if (!password) {
             setPasswordError(
                 'Please enter your password.'
             );
             return;
         }
-
         if (password.length < 8) {
             setPasswordError(
                 'Password must be at least 8 characters long.'
             );
             return;
         }
-
         if (passwordError) {
             return;
         }
-
         setIsSubmitting(true);
-
         try {
-            // Calls:
-            // POST /api/auth/login
-            //
-            // Payload:
-            // {
-            //     email,
-            //     password
-            // }
-
             await login(email, password);
-
-            // Backend sets authentication token
-            // in cookie because api.service.js
-            // uses withCredentials: true.
-
             navigate('/dashboard');
-
         } catch (error) {
             console.error(
                 'Login Error:',
                 error
             );
-
             const message =
                 error.response?.data?.message ||
                 error.response?.data?.error ||
                 'Invalid email or password. Please try again.';
-
             setSubmitError(message);
-
         } finally {
             setIsSubmitting(false);
         }
     };
 
+
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-3 py-6 sm:p-4 overflow-x-hidden">
-
             <div className="bg-[linear-gradient(to_bottom,#000000_0%,#80808094_30%,#FFFFFF_100%)] p-6 sm:p-10 rounded-3xl shadow-sm w-full max-w-md box-border">
-
-                {/* Logo */}
-                {/* <div className="flex justify-center mb-6">
-                    <img
-                        src={logo}
-                        alt="Company Logo"
-                        className="w-48 max-w-full rounded-lg px-2 py-2 object-contain"
-                    />
-                </div> */}
-
-                {/* Header */}
                 <div className="text-center mb-8">
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                         Welcome Back
@@ -184,13 +120,10 @@ export default function Login() {
                     </p>
                 </div>
 
-                {/* Form */}
                 <form
                     onSubmit={handleSubmit}
                     className="space-y-6"
                 >
-
-                    {/* Email */}
                     <div>
                         <label className="block text-xs font-bold text-gray-700 tracking-wider uppercase mb-2">
                             EMAIL ADDRESS
@@ -211,14 +144,12 @@ export default function Login() {
                         />
                     </div>
 
-                    {/* Password */}
                     <div>
                         <label className="block text-xs font-bold text-gray-700 tracking-wider uppercase mb-2">
                             PASSWORD
                         </label>
 
                         <div className="relative">
-
                             <input
                                 type={
                                     showPassword
@@ -239,7 +170,6 @@ export default function Login() {
                                 className="w-full pl-4 pr-12 py-3.5 bg-blue-50 border border-transparent rounded-2xl text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-indigo-400 transition duration-200 "
                             />
 
-                            {/* Password toggle */}
                             <button
                                 type="button"
                                 onClick={
@@ -298,7 +228,6 @@ export default function Login() {
                             </button>
                         </div>
 
-                        {/* Password error */}
                         {passwordError && (
                             <p className="text-xs text-red-600 font-medium mt-2">
                                 {passwordError}
@@ -306,14 +235,12 @@ export default function Login() {
                         )}
                     </div>
 
-                    {/* API Error */}
                     {submitError && (
                         <p className="text-xs text-red-600 font-medium">
                             {submitError}
                         </p>
                     )}
 
-                    {/* Login button */}
                     <button
                         type="submit"
                         disabled={
@@ -327,13 +254,10 @@ export default function Login() {
                             ? 'Signing In...'
                             : 'Sign In'}
                     </button>
-
                 </form>
 
-                {/* Register */}
                 <p className="mt-6 text-center text-sm text-slate-500">
                     Create an account?{' '}
-
                     <Link
                         to="/register"
                         className="text-indigo-600 font-semibold hover:underline"
@@ -341,7 +265,6 @@ export default function Login() {
                         Register
                     </Link>
                 </p>
-
             </div>
         </div>
     );

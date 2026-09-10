@@ -90,9 +90,9 @@ export default function DashboardPage() {
         );
     }, []);
 
+
     const getBlogCategory = useCallback((blog) => {
         if (!blog) return '';
-
         return String(
             blog.category ||
             blog.categoryName ||
@@ -100,10 +100,9 @@ export default function DashboardPage() {
         );
     }, []);
 
-    // API RESPONSE NORMALIZER
+
     const extractBlogs = useCallback((response) => {
         let blogData = [];
-
         if (Array.isArray(response)) {
             blogData = response;
         } else if (Array.isArray(response?.blogs)) {
@@ -160,7 +159,7 @@ export default function DashboardPage() {
         }));
     }, []);
 
-    // ERROR MESSAGE HELPER
+
     const getErrorMessage = useCallback((err, fallback) => {
         return (
             err?.response?.data?.message ||
@@ -173,13 +172,12 @@ export default function DashboardPage() {
     }, []);
 
 
-    // GET ALL BLOGS
     const fetchBlogs = useCallback(async () => {
         try {
             setLoading(true);
             setError('');
             const response = await getAllBlogsService();
-            console.log('Dashboard Blogs:', response);
+            // console.log('Dashboard Blogs:', response);
             const blogData = extractBlogs(response);
             setBlogs(
                 Array.isArray(blogData)
@@ -187,19 +185,19 @@ export default function DashboardPage() {
                     : []);
         } catch (err) {
             console.error('Fetch Blogs Error:', err);
-            setError(getErrorMessage(err,'Failed to load blogs.'));
+            setError(getErrorMessage(err, 'Failed to load blogs.'));
             setBlogs([]);
         } finally {
             setLoading(false);
         }
     }, [extractBlogs, getErrorMessage]);
 
-    // INITIAL LOAD
+
     useEffect(() => {
         fetchBlogs();
     }, [fetchBlogs]);
 
-    // DYNAMIC CATEGORIES
+
     const categories = useMemo(() => {
         const categorySet = new Set();
         blogs.forEach((blog) => {
@@ -213,12 +211,13 @@ export default function DashboardPage() {
         );
     }, [blogs, getBlogCategory]);
 
-    // FILTER LOGIC
+
     const normalizeValue = (value) => {
         return String(value ?? '')
             .trim()
             .toLowerCase();
     };
+
 
     const filteredBlogs = useMemo(() => {
         const search = normalizeValue(searchTerm);
@@ -284,9 +283,6 @@ export default function DashboardPage() {
         selectedCategory
     ]);
 
-    // ============================================================
-    // PAGINATION
-    // ============================================================
 
     const totalPages =
         Math.max(
@@ -296,12 +292,13 @@ export default function DashboardPage() {
             1
         );
 
-    // Automatically keep current page valid.
+
     useEffect(() => {
         if (currentPage > totalPages) {
             setCurrentPage(totalPages);
         }
     }, [currentPage, totalPages]);
+
 
     const paginatedBlogs = useMemo(() => {
         const start =
@@ -313,63 +310,44 @@ export default function DashboardPage() {
         );
     }, [filteredBlogs, currentPage]);
 
-    // ============================================================
-    // CREATE BLOG
-    // ============================================================
 
     const handleCreateBlog = () => {
         navigate('/create-blogs');
     };
 
-    // ============================================================
-    // EDIT BLOG
-    // ============================================================
 
     const handleEditBlog = (id) => {
         if (!id) return;
-
         navigate(`/edit-blogs?edit=${encodeURIComponent(id)}`);
     };
 
-    // ============================================================
-    // PREVIEW BLOG
-    // ============================================================
 
     const handlePreviewBlog = (id) => {
         if (!id) return;
-
         const targetBlog = blogs.find(
             (blog) =>
                 getBlogId(blog) === String(id)
         );
-
         if (!targetBlog) {
             setToastMessage('Blog could not be found.');
             setShowToast(true);
             return;
         }
-
         navigate(
             `/preview-blogs?id=${encodeURIComponent(id)}`,
             {
                 state: {
                     fromDashboard: true,
-
                     articleData: {
                         ...targetBlog,
-
                         id: getBlogId(targetBlog),
-
                         title:
                             targetBlog.title || '',
-
                         subtitle:
                             getBlogExcerpt(targetBlog),
-
                         category:
                             getBlogCategory(targetBlog)
                                 .toUpperCase(),
-
                         author:
                             typeof targetBlog.author === 'object'
                                 ? targetBlog.author
@@ -379,13 +357,10 @@ export default function DashboardPage() {
                                             targetBlog.author
                                         )
                                 },
-
                         featuredImage:
                             getBlogImage(targetBlog),
-
                         publishDate:
                             getBlogDate(targetBlog),
-
                         readTime:
                             getBlogReadTime(targetBlog)
                     }
@@ -394,24 +369,16 @@ export default function DashboardPage() {
         );
     };
 
-    // ============================================================
-    // TOAST
-    // ============================================================
 
     useEffect(() => {
         if (!showToast) return;
-
         const timer = setTimeout(() => {
             setShowToast(false);
             setToastMessage('');
         }, 3000);
-
         return () => clearTimeout(timer);
     }, [showToast]);
 
-    // ============================================================
-    // OPEN DELETE MODAL
-    // ============================================================
 
     const handleOpenDeleteModal = (id) => {
         if (!id) {
@@ -419,44 +386,29 @@ export default function DashboardPage() {
             setShowToast(true);
             return;
         }
-
         setSelectedBlogId(String(id));
         setIsConfirmOpen(true);
     };
 
-    // ============================================================
-    // CLOSE DELETE MODAL
-    // ============================================================
 
     const handleCloseDeleteModal = () => {
         if (deleting) return;
-
         setIsConfirmOpen(false);
         setSelectedBlogId(null);
     };
 
-    // ============================================================
-    // DELETE BLOG
-    // ============================================================
 
     const handleDeleteBlog = async () => {
         if (!selectedBlogId || deleting) {
             return;
         }
-
         try {
             setDeleting(true);
-
-            console.log(
-                'Deleting blog:',
-                selectedBlogId
-            );
-
+            // console.log('Deleting blog:',selectedBlogId);
             await deleteBlogService(
                 selectedBlogId
             );
 
-            // Remove from UI immediately.
             setBlogs((prevBlogs) =>
                 prevBlogs.filter(
                     (blog) =>
@@ -465,38 +417,20 @@ export default function DashboardPage() {
                 )
             );
 
-            setToastMessage(
-                'Blog deleted successfully'
-            );
-
+            setToastMessage('Blog deleted successfully');
             setShowToast(true);
-
             setIsConfirmOpen(false);
             setSelectedBlogId(null);
-
         } catch (err) {
-            console.error(
-                'Delete Blog Error:',
-                err
-            );
-
+            console.error('Delete Blog Error:', err);
             setToastMessage(
-                getErrorMessage(
-                    err,
-                    'Failed to delete blog'
-                )
+                getErrorMessage(err, 'Failed to delete blog')
             );
-
             setShowToast(true);
-
         } finally {
             setDeleting(false);
         }
     };
-
-    // ============================================================
-    // RESET FILTERS
-    // ============================================================
 
     const handleResetFilters = () => {
         setSearchTerm('');
@@ -505,36 +439,24 @@ export default function DashboardPage() {
         setCurrentPage(1);
     };
 
-    // ============================================================
-    // SEARCH
-    // ============================================================
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setCurrentPage(1);
     };
 
-    // ============================================================
-    // STATUS
-    // ============================================================
 
     const handleStatusChange = (e) => {
         setSelectedStatus(e.target.value);
         setCurrentPage(1);
     };
 
-    // ============================================================
-    // CATEGORY
-    // ============================================================
 
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
         setCurrentPage(1);
     };
 
-    // ============================================================
-    // PAGE NAVIGATION
-    // ============================================================
 
     const handlePreviousPage = () => {
         setCurrentPage((page) =>
@@ -562,16 +484,9 @@ export default function DashboardPage() {
 
     return (
         <div>
-
-            {/* =====================================================
-                TITLE & ACTION BUTTONS HEADER
-            ====================================================== */}
-
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-
                 <div>
                     <div className="flex items-center gap-3">
-
                         <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
                             Dashboard
                         </h1>
@@ -579,7 +494,6 @@ export default function DashboardPage() {
                         <span className="bg-indigo-50 text-indigo-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-100">
                             {filteredBlogs.length} Total
                         </span>
-
                     </div>
 
                     <p className="text-xs text-slate-500 mt-1 max-w-xl">
@@ -588,7 +502,6 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-
                     <button
                         onClick={handleCreateBlog}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-sm shadow-indigo-200 cursor-pointer"
@@ -596,14 +509,8 @@ export default function DashboardPage() {
                         <FiPlus size={16} />
                         <span>Create New Blog</span>
                     </button>
-
                 </div>
-
             </div>
-
-            {/* =====================================================
-                ERROR MESSAGE
-            ====================================================== */}
 
             {error && !loading && (
                 <div className="mb-4 bg-rose-50 border border-rose-100 text-rose-600 text-xs px-4 py-3 rounded-xl">
@@ -611,14 +518,9 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* =====================================================
-                FILTER BAR
-            ====================================================== */}
 
             <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-6 shadow-sm">
-
                 <div className="relative flex-1">
-
                     <FiSearch
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                         size={16}
@@ -631,11 +533,9 @@ export default function DashboardPage() {
                         placeholder="Search by blog title, keyword..."
                         className="w-full bg-slate-50/50 md:bg-transparent text-xs pl-9 pr-4 py-2 md:py-1 text-slate-700 placeholder-slate-400 rounded-lg md:rounded-none border border-slate-200 md:border-none focus:outline-none"
                     />
-
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-
                     <select
                         value={selectedStatus}
                         onChange={handleStatusChange}
@@ -646,17 +546,12 @@ export default function DashboardPage() {
                         <option>Draft</option>
                     </select>
 
-                    {/* =====================================================
-                        DYNAMIC CATEGORY DROPDOWN
-                    ====================================================== */}
-
                     <select
                         value={selectedCategory}
                         onChange={handleCategoryChange}
                         className="flex-1 sm:flex-none bg-slate-50 border border-slate-200 text-xs text-slate-700 font-medium rounded-lg px-3 py-2 md:py-1 focus:outline-none cursor-pointer"
                     >
                         <option>All Categories</option>
-
                         {categories.map((category) => (
                             <option
                                 key={category}
@@ -666,118 +561,79 @@ export default function DashboardPage() {
                             </option>
                         ))}
                     </select>
-
                 </div>
-
             </div>
 
-            {/* =====================================================
-                LOADING STATE
-            ====================================================== */}
 
             {loading ? (
-
                 <div className="bg-white rounded-xl border border-slate-200 p-12 text-center my-8">
-
                     <div className="w-8 h-8 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-
                     <h3 className="text-base font-bold text-slate-800 mb-1">
                         Loading blogs...
                     </h3>
-
                     <p className="text-xs text-slate-500">
                         Please wait while we fetch your blog posts.
                     </p>
-
                 </div>
-
             ) : paginatedBlogs.length > 0 ? (
-
-                /* =================================================
-                   BLOG GRID
-                ================================================== */
-
                 <div className="flex flex-wrap gap-6">
-
                     {paginatedBlogs.map((post) => {
-
                         const postId = getBlogId(post);
-
                         const authorName =
                             typeof post.author === 'object'
                                 ? post.author?.name || ''
                                 : post.author || '';
-
                         const postImage =
                             post.image ||
                             post.featuredImage ||
                             post.imageUrl ||
                             '';
-
                         const postExcerpt =
                             post.excerpt ||
                             post.subtitle ||
                             '';
-
                         const postDate =
                             post.date ||
                             post.publishDate ||
                             '';
-
                         const postReadTime =
                             post.readTime ||
                             '';
-
                         const postStatus = String(
                             post?.status ||
                             post?.publishStatus ||
                             post?.publicationStatus ||
                             'Draft'
                         ).trim();
-
                         const displayStatus =
                             postStatus.toLowerCase() === 'published'
                                 ? 'Published'
                                 : 'Draft';
-
                         const postCategory =
                             post.category ||
                             '';
-
                         return (
 
                             <div
                                 key={postId}
                                 className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col justify-between"
                             >
-
                                 <div>
-
-                                    {/* IMAGE */}
-
                                     <div className="relative h-40 sm:h-44 overflow-hidden bg-slate-100">
-
                                         {postImage ? (
-
                                             <img
                                                 src={postImage}
                                                 alt={post.title || 'Blog'}
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                             />
-
                                         ) : (
-
                                             <div className="w-full h-full flex items-center justify-center bg-slate-100">
-
                                                 <FiInbox
                                                     size={32}
                                                     className="text-slate-300"
                                                 />
-
                                             </div>
-
                                         )}
-
                                         <span className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-semibold px-2.5 py-1 rounded-md">
                                             {postCategory}
                                         </span>
@@ -794,16 +650,11 @@ export default function DashboardPage() {
                                                     : 'bg-amber-400'
                                                     }`}
                                             ></span>
-
                                             {displayStatus}
                                         </span>
-
                                     </div>
 
-                                    {/* CONTENT */}
-
                                     <div className="p-4">
-
                                         <h3
                                             onClick={() =>
                                                 handlePreviewBlog(postId)
@@ -818,9 +669,7 @@ export default function DashboardPage() {
                                         </p>
 
                                         <div className="flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100 pt-3">
-
                                             <div className="flex items-center gap-1.5 font-medium text-slate-600">
-
                                                 <FiUser
                                                     size={13}
                                                     className="text-slate-400"
@@ -829,11 +678,9 @@ export default function DashboardPage() {
                                                 <span className="truncate max-w-22.5 sm:max-w-30">
                                                     {authorName}
                                                 </span>
-
                                             </div>
 
                                             <div className="flex items-center gap-1.5">
-
                                                 <span>
                                                     {postDate
                                                         ? new Date(postDate).toLocaleDateString('en-IN', {
@@ -849,21 +696,12 @@ export default function DashboardPage() {
                                                 <span>
                                                     {postReadTime}
                                                 </span>
-
                                             </div>
-
                                         </div>
-
                                     </div>
-
                                 </div>
 
-                                {/* =================================================
-                                    ACTION BUTTONS
-                                ================================================== */}
-
                                 <div className="px-4 py-2.5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-600">
-
                                     <button
                                         onClick={() =>
                                             handlePreviewBlog(postId)
@@ -894,24 +732,13 @@ export default function DashboardPage() {
                                         <FiTrash2 size={14} />
                                         <span>Delete</span>
                                     </button>
-
                                 </div>
-
                             </div>
-
                         );
                     })}
-
                 </div>
-
             ) : (
-
-                /* =================================================
-                   EMPTY STATE
-                ================================================== */
-
                 <div className="bg-white rounded-xl border border-slate-200 p-12 text-center my-8">
-
                     <FiInbox
                         size={40}
                         className="mx-auto text-slate-300 mb-3"
@@ -931,21 +758,12 @@ export default function DashboardPage() {
                     >
                         Reset Filters
                     </button>
-
                 </div>
-
             )}
 
-            {/* =====================================================
-                PAGINATION CONTAINER
-            ====================================================== */}
-
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs text-slate-500">
-
                 <p className="text-center sm:text-left">
-
                     Showing{' '}
-
                     <span className="font-semibold text-slate-800">
                         {filteredBlogs.length
                             ? (currentPage - 1) * ITEMS_PER_PAGE + 1
@@ -968,29 +786,24 @@ export default function DashboardPage() {
                     </span>
 
                     {' '}results
-
                 </p>
 
                 <div className="flex items-center gap-1">
-
                     <button
                         disabled={currentPage === 1}
                         onClick={handlePreviousPage}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-slate-600 cursor-pointer transition-colors"
                     >
                         <FiChevronLeft size={14} />
-
                         <span className="hidden sm:inline">
                             Previous
                         </span>
-
                     </button>
 
                     {Array.from(
                         { length: totalPages },
                         (_, i) => i + 1
                     ).map((pageNum) => (
-
                         <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
@@ -1001,7 +814,6 @@ export default function DashboardPage() {
                         >
                             {pageNum}
                         </button>
-
                     ))}
 
                     <button
@@ -1009,31 +821,18 @@ export default function DashboardPage() {
                         onClick={handleNextPage}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed font-medium text-slate-600 transition-colors"
                     >
-
                         <span className="hidden sm:inline">
                             Next
                         </span>
-
                         <FiChevronRight size={14} />
-
                     </button>
-
                 </div>
-
             </div>
 
-            {/* =====================================================
-                DELETE CONFIRMATION MODAL
-            ====================================================== */}
-
             {isConfirmOpen && (
-
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-xs p-4">
-
                     <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border border-slate-100 space-y-4">
-
                         <div className="space-y-1">
-
                             <h3 className="text-base font-bold text-slate-900">
                                 Delete Blog Post?
                             </h3>
@@ -1041,11 +840,9 @@ export default function DashboardPage() {
                             <p className="text-xs text-slate-500 leading-relaxed">
                                 Are you sure you want to delete this blog? This action cannot be undone.
                             </p>
-
                         </div>
 
                         <div className="flex items-center justify-end gap-2 pt-2">
-
                             <button
                                 type="button"
                                 disabled={deleting}
@@ -1065,23 +862,13 @@ export default function DashboardPage() {
                                     ? 'Deleting...'
                                     : 'Confirm Delete'}
                             </button>
-
                         </div>
-
                     </div>
-
                 </div>
-
             )}
 
-            {/* =====================================================
-                TOAST
-            ====================================================== */}
-
             {showToast && toastMessage && (
-
-                <div className="fixed bottom-5 right-5 z-[60]">
-
+                <div className="fixed bottom-5 right-5 z-60">
                     <div
                         className={`px-4 py-3 rounded-xl shadow-lg text-xs font-semibold ${toastMessage.includes('successfully')
                             ? 'bg-emerald-600 text-white'
@@ -1090,11 +877,8 @@ export default function DashboardPage() {
                     >
                         {toastMessage}
                     </div>
-
                 </div>
-
             )}
-
         </div>
     );
 }
