@@ -16,13 +16,11 @@ import ForgotPassword from "./components/auth/ForgotPassword";
 import VerifyOtp from "./components/auth/VerifyOtp";
 import ResetPassword from "./components/auth/ResetPassword";
 import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
-import Header from "./components/Header";
 
 
 const BlogLayout = () => {
   return (
     <>
-      <Header />
       <Outlet />
     </>
   );
