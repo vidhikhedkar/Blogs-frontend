@@ -1,8 +1,16 @@
 {
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+    "rewrites": [
+        {
+            "source": "/blogs/assets/:path*",
+            "destination": "/assets/:path*"
+        },
+        {
+            "source": "/blogs",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/blogs/:path*",
+            "destination": "/index.html"
+        }
+    ]
 }
