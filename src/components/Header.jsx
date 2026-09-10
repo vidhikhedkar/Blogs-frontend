@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import logodark from '../assets/logo_dark.png'
-import logo from '../assets/logo.png'
+import logodark from "../assets/logo_dark.png";
+import logo from "../assets/logo.png";
 
 const Header = () => {
     const [scrolled, setScrolled] = useState(false);
@@ -10,17 +10,17 @@ const Header = () => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50);
         };
+
         window.addEventListener("scroll", handleScroll);
+
         return () => {
             window.removeEventListener("scroll", handleScroll);
         };
     }, []);
 
-
     const closeMenu = () => {
         setMenuOpen(false);
     };
-
 
     return (
         <>
@@ -32,7 +32,7 @@ const Header = () => {
 
                     {/* LOGO */}
                     <a
-                        href="#home"
+                        href="/"
                         className="logo"
                         onClick={closeMenu}
                     >
@@ -54,59 +54,64 @@ const Header = () => {
                         id="navMenu"
                         className={`nav-menu ${menuOpen ? "open" : ""}`}
                     >
+
+                        {/* HOME */}
                         <a
-                            href="#home"
+                            href="/"
                             onClick={closeMenu}
                         >
                             Home
                         </a>
 
+                        {/* ABOUT */}
                         <a
-                            href="#about"
+                            href="/#about"
                             onClick={closeMenu}
                         >
                             About Us
                         </a>
 
+                        {/* TEAM */}
                         <a
-                            href="#team"
+                            href="/#team"
                             onClick={closeMenu}
                         >
                             Our Team
                         </a>
 
+                        {/* SERVICES */}
                         <a
-                            href="#services"
+                            href="/#services"
                             onClick={closeMenu}
                         >
                             Services
                         </a>
 
-                        {/* <a
-                            href="http://localhost:5173/blogs"
+                        {/* BLOGS */}
+                        <a
+                            href="/blogs"
                             onClick={closeMenu}
                         >
                             Blogs
-                        </a> */}
-
-                        <a href="/blogs" onClick={closeMenu}>
-                            Blogs
                         </a>
 
+                        {/* PRESENCE */}
                         <a
-                            href="#projects"
+                            href="/#projects"
                             onClick={closeMenu}
                         >
                             Presence
                         </a>
 
+                        {/* GET A QUOTE */}
                         <a
-                            href="#contact"
+                            href="/#contact"
                             className="nav-cta-btn"
                             onClick={closeMenu}
                         >
                             Get a Quote
                         </a>
+
                     </nav>
 
                     {/* HAMBURGER */}
