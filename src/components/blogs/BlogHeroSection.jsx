@@ -4,7 +4,7 @@ import heroBg from '../../assets/about-aerial.png';
 
 export default function BlogHeroSection() {
   return (
-    <div className="relative min-h-[80vh] flex flex-col justify-end bg-gray-900 text-white overflow-hidden px-6 sm:px-12 md:px-16 pt-32 sm:pt-48 md:pt-56 pb-20 md:pb-28">
+    <div className="relative flex flex-col justify-end bg-gray-900 text-white overflow-hidden px-6 sm:px-12 md:px-16 pt-32 sm:pt-30 pb-20 md:pb-28">
 
       {/* Background Image */}
       <div
